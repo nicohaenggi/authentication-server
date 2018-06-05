@@ -1,14 +1,15 @@
 // import dependencies
 import { InvalidArgumentError } from '../errors';
 import * as url from 'url';
+import { Scope, IBearerTokenResponse, IAbstractTokenType } from '../interfaces';
 
-export default class BearerTokenType {
+export default class BearerTokenType implements IAbstractTokenType {
   public accessToken: string;
   public accessTokenLifetime: number;
   public refreshToken: string;
-  public scope: string[];
+  public scope: Scope;
   
-  constructor(accessToken: string, accessTokenLifetime: number, refreshToken: string, scope: string[]) {
+  constructor(accessToken: string, accessTokenLifetime: number, refreshToken: string, scope: Scope) {
     if (!accessToken) {
       throw new InvalidArgumentError('Missing parameter: `accessToken`');
     }
@@ -19,8 +20,8 @@ export default class BearerTokenType {
     this.scope = scope;
   }
 
-  public valueOf() : any {
-    let object : any = {
+  public valueOf() : IBearerTokenResponse {
+    let object : IBearerTokenResponse = {
       access_token: this.accessToken,
       token_type: 'Bearer'
     }

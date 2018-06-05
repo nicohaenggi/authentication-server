@@ -4,53 +4,34 @@ import { InvalidArgumentError, InvalidGrantError, InvalidRequestError } from '..
 import * as is from '../validator/is';
 import { generateRandomToken } from '../../utils';
 import { promisify } from 'bluebird';
+import { IAuthModel, IAbstractGrantTypeOptions, IRequest, Scope, } from '../interfaces';
+import { IClient } from '../../db/schemas/client';
+import { IUser } from '../../db/schemas/user';
+import { IToken } from '../../db/schemas/token';
+import { ITokenDocument } from '../../db/interfaces/token';
 
 export default class PasswordGrantType extends AbstractGrantType {
-  public accessTokenLifetime: number;
-  public refreshTokenLifetime: number;
-  public model: any;
-  public alwaysIssueNewRefreshToken: boolean;
+  public model: IAuthModel;
 
-  constructor(getUser: Function, saveToken: Function, accessTokenLifetime: number, refreshTokenLifetime: number, alwaysIssueNewRefreshToken: boolean, model: any) {
-    if (!model) {
+  constructor(options: IAbstractGrantTypeOptions) {
+    if (!options.model) {
       throw new InvalidArgumentError('Missing parameter: `model`');
     }
   
-    if (!model.getUser) {
-      throw new InvalidArgumentError('Invalid argument: model does not implement `getUser()`');
-    }
-  
-    if (!model.saveToken) {
-      throw new InvalidArgumentError('Invalid argument: model does not implement `saveToken()`');
-    }
-
-    super(accessTokenLifetime, refreshTokenLifetime, alwaysIssueNewRefreshToken, model);
+    super(options);
   }
 
-  public handle(request: any, client: any) {
-    if (!request) {
-      throw new InvalidArgumentError('Missing parameter: `request`');
-    }
-  
-    if (!client) {
-      throw new InvalidArgumentError('Missing parameter: `client`');
-    }
-
+  public async handle(request: IRequest, client: IClient) : Promise<IToken> {
     let scope = this.getScope(request);
 
-    return Promise.bind(this)
-      .then(() => {
-        return this.getUser(request);
-      })
-      .then((user: any) => {
-        return this.saveToken(user, client, scope);
-      });
+    let user = await this.getUser(request);
+    return await this.saveToken(user, client, scope);
   }
 
   /**
    * Get user using a username/password combination.
    */
-  public async getUser(request: any) : Promise<any> {
+  public async getUser(request: any) : Promise<IUser> {
     if (!request.body.username) {
       throw new InvalidRequestError('Missing parameter: `username`');
     }
@@ -78,31 +59,24 @@ export default class PasswordGrantType extends AbstractGrantType {
   /**
    * Save token.
    */
-  public async saveToken(user: any, client: any, dScope: string[]) : Promise<void> {
-    var fns = [
-      this.validateScope(user, client, dScope),
-      this.generateAccessToken(client, user, dScope),
-      this.generateRefreshToken(client, user, dScope),
-      this.getAccessTokenExpiresAt(),
-      this.getRefreshTokenExpiresAt()
-    ];
-
-    let scope = this.validateScope(user, client, dScope);
-    let accessToken = await this.generateAccessToken(client, user, dScope);
-    let refreshToken = await this.generateRefreshToken(client, user, dScope);
+  public async saveToken(user: IUser, client: IClient, scope: Scope) : Promise<IToken> {
+    let validatedScope = await this.validateScope(client, user, scope);
+    let accessToken = await this.generateAccessToken(client, user, scope);
+    let refreshToken = await this.generateRefreshToken(client, user, scope);
     let accessTokenExpiresAt = this.getAccessTokenExpiresAt();
     let refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();
 
-    let token = {
+    let token : ITokenDocument = {
+      scope: validatedScope,
       accessToken,
       accessTokenExpiresAt,
       refreshToken,
       refreshTokenExpiresAt,
-      scope
+      client,
+      user
     }
 
-    await this.model.saveToken(token, client, user);
-    return;
+    return await this.model.saveToken(token);
   }
 
 

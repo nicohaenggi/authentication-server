@@ -2,91 +2,65 @@
 import * as _ from 'lodash';
 import BearerTokenType from '../token-types/bearer-token-type';
 import { InvalidArgumentError, InvalidClientError, InvalidRequestError, OAuthError, ServerError, UnauthorizedClientError, UnsupportedGrantTypeError } from '../errors';
-import Request from '../request';
-import Response from '../response';
+import { IRequest, IResponse, TokenHandlerOptionsInternal, IAuthModel, IClientCredentials, IAbstractTokenType, Constructor, IAbstractGrantTypeOptions } from '../interfaces';
+import { IClient } from '../../db/schemas/client';
+import { IToken } from '../../db/schemas/token';
 import TokenModel from '../models/token-model';
 import * as auth from 'basic-auth';
 import * as is from '../validator/is';
 
 import passwordType from '../grant-types/password-grant-type';
+import refreshTokenType from '../grant-types/refresh-token-grant-type';
+import AbstractGrantType from '../grant-types/abstract-grant-type';
 
 /**
  * Grant types.
  */
 let grantTypes = {
-  password: passwordType
+  password: passwordType,
+  refresh_token: refreshTokenType
 };
 
 export default class TokenHandler {
   public accessTokenLifetime: number;
-  public grantTypes: any;
-  public model: any;
+  public grantTypes: { [key: string]: Constructor<AbstractGrantType> };
+  public model: IAuthModel;
   public refreshTokenLifetime: number;
   public allowExtendedTokenAttributes: boolean;
   public requireClientAuthentication: any;
   public alwaysIssueNewRefreshToken: boolean;
 
-  constructor(options: any = {}) {
-    if (!options.accessTokenLifetime) {
-      throw new InvalidArgumentError('Missing parameter: `accessTokenLifetime`');
-    }
-  
-    if (!options.model) {
-      throw new InvalidArgumentError('Missing parameter: `model`');
-    }
-  
-    if (!options.refreshTokenLifetime) {
-      throw new InvalidArgumentError('Missing parameter: `refreshTokenLifetime`');
-    }
-  
-    if (!options.model.getClient) {
-      throw new InvalidArgumentError('Invalid argument: model does not implement `getClient()`');
-    }
-
+  constructor(options: TokenHandlerOptionsInternal) {
     this.accessTokenLifetime = options.accessTokenLifetime;
-    this.grantTypes = _.assign({}, grantTypes, options.extendedGrantTypes);
+    this.grantTypes = grantTypes;
     this.model = options.model;
     this.refreshTokenLifetime = options.refreshTokenLifetime;
-    this.allowExtendedTokenAttributes = options.allowExtendedTokenAttributes;
     this.requireClientAuthentication = options.requireClientAuthentication || {};
-    this.alwaysIssueNewRefreshToken = options.alwaysIssueNewRefreshToken !== false;
+    this.alwaysIssueNewRefreshToken = (options.alwaysIssueNewRefreshToken !== false);
   }
 
   /**
    * Token Handler.
    */
-  public async handle(request: Request, response: Response) : Promise<any>{
-    if (!(request instanceof Request)) {
-      throw new InvalidArgumentError('Invalid argument: `request` must be an instance of Request');
-    }
-  
-    if (!(response instanceof Response)) {
-      throw new InvalidArgumentError('Invalid argument: `response` must be an instance of Response');
-    }
-  
+  public async handle(request: IRequest, response: IResponse) : Promise<IToken>{  
     if (request.method !== 'POST') {
       return Promise.reject(new InvalidRequestError('Invalid request: method must be POST'));
     }
 
-    if (!request.is('application/x-www-form-urlencoded')) {
-      return Promise.reject(new InvalidRequestError('Invalid request: content must be application/x-www-form-urlencoded'));
+    if (!request.is('application/json')) {
+      return Promise.reject(new InvalidRequestError('Invalid request: content must be application/json'));
     }
 
     try {
       let client = await this.getClient(request, response);
-      let data = await this.handleGrantType(request, client);
+      let grantType = await this.handleGrantType(request, client);
       
-      let model = new TokenModel(data, { allowExtendedTokenAttributes: this.allowExtendedTokenAttributes });
-      let tokenType = this.getTokenType(model);
+      let tokenModel = new TokenModel(grantType);
+      let tokenType = this.getTokenType(tokenModel);
       this.updateSuccessResponse(response, tokenType);
   
-      return data;
+      return grantType;
     } catch (err) {
-      if (!(err instanceof OAuthError)) {
-        err = new ServerError(err);
-      }
-      
-      this.updateErrorResponse(response, err);
       throw err;
     }
   }
@@ -94,9 +68,9 @@ export default class TokenHandler {
   /**
    * Get the client from the model.
    */
-  public async getClient(request: Request, response: Response) : Promise<any> {
+  public async getClient(request: IRequest, response: IResponse) : Promise<IClient> {
     let credentials = this.getClientCredentials(request);
-    let grantType = request.body.grant_type;
+    let grantType : string = request.body.grant_type;
 
     if (!credentials.clientId) {
       throw new InvalidRequestError('Missing parameter: `client_id`');
@@ -124,9 +98,7 @@ export default class TokenHandler {
         throw new ServerError('Server error: missing client `grants`');
       }
   
-      if (!(client.grants instanceof Array)) {
-        throw new ServerError('Server error: `grants` must be an array');
-      }
+      // return client
       return client;
     } catch (err) {
       // Include the "WWW-Authenticate" response header field if the client
@@ -136,6 +108,7 @@ export default class TokenHandler {
       if ((err instanceof InvalidClientError) && request.get('authorization')) {
         response.set('WWW-Authenticate', 'Basic realm="Service"');
 
+        // throw new error
         throw new InvalidClientError(err, { code: 401 });
       }
 
@@ -151,12 +124,12 @@ export default class TokenHandler {
    *
    * @see https://tools.ietf.org/html/rfc6749#section-2.3.1
    */
-  public getClientCredentials(request: any) : any {
+  public getClientCredentials(request: IRequest) : IClientCredentials {
     let credentials = auth(request);
-    let grantType = request.body.grant_type;
+    let grantType : string = request.body.grant_type;
 
     if (credentials) {
-    return { clientId: credentials.name, clientSecret: credentials.pass };
+      return { clientId: credentials.name, clientSecret: credentials.pass };
     }
 
     if (request.body.client_id && request.body.client_secret) {
@@ -164,7 +137,7 @@ export default class TokenHandler {
     }
 
     if (!this.isClientAuthenticationRequired(grantType)) {
-      if(request.body.client_id) {
+      if (request.body.client_id) {
         return { clientId: request.body.client_id };
       }
     }
@@ -175,8 +148,8 @@ export default class TokenHandler {
   /**
    * Handle grant type.
    */
-  public handleGrantType(request: any, client: any) : any {
-    let grantType = request.body.grant_type;
+  public async handleGrantType(request: IRequest, client: IClient) : Promise<IToken> {
+    let grantType : string = request.body.grant_type;
 
     if (!grantType) {
       throw new InvalidRequestError('Missing parameter: `grant_type`');
@@ -196,59 +169,48 @@ export default class TokenHandler {
 
     let accessTokenLifetime = this.getAccessTokenLifetime(client);
     let refreshTokenLifetime = this.getRefreshTokenLifetime(client);
-    let Type = this.grantTypes[grantType];
+    let Type = this.grantTypes[grantType] as Constructor<AbstractGrantType>;
 
-    let options = {
+    // !TODO: not good
+    let options: IAbstractGrantTypeOptions = {
       accessTokenLifetime: accessTokenLifetime,
-      model: this.model,
       refreshTokenLifetime: refreshTokenLifetime,
+      model: this.model,
       alwaysIssueNewRefreshToken: this.alwaysIssueNewRefreshToken
     };
 
-    return new Type(options).handle(request, client);
+    return await new Type(options).handle(request, client);
   }
 
   /**
    * Get access token lifetime.
    */
-  public getAccessTokenLifetime(client: any) : number {
+  public getAccessTokenLifetime(client: IClient) : number {
     return client.accessTokenLifetime || this.accessTokenLifetime;
   };
 
   /**
    * Get refresh token lifetime.
    */
-  public getRefreshTokenLifetime(client: any) : number {
+  public getRefreshTokenLifetime(client: IClient) : number {
     return client.refreshTokenLifetime || this.refreshTokenLifetime;
   };
 
   /**
   * Get token type.
   */
-  public getTokenType(model: any) : BearerTokenType {
-    return new BearerTokenType(model.accessToken, model.accessTokenLifetime, model.refreshToken, model.scope, model.customAttributes);
+  public getTokenType(tokenModel: TokenModel) : IAbstractTokenType {
+    return new BearerTokenType(tokenModel.accessToken, tokenModel.accessTokenLifetime, tokenModel.refreshToken, tokenModel.scope);
   };
 
   /**
    * Update response when a token is generated.
    */
-  public updateSuccessResponse(response: Response, tokenType: BearerTokenType) : void {
+  public updateSuccessResponse(response: IResponse, tokenType: IAbstractTokenType) : void {
     response.body = tokenType.valueOf();
 
     response.set('Cache-Control', 'no-store');
     response.set('Pragma', 'no-cache');
-  }
-
-  /**
-   * Update response when an error is thrown.
-   */
-  public updateErrorResponse(response: Response, error: OAuthError) : void {
-    response.body = {
-      error: error.name,
-      error_description: error.message
-    };
-  
-    response.status = error.code;
   }
 
   /**

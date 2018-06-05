@@ -1,60 +1,53 @@
 // import dependencies
 import { InvalidArgumentError } from '../errors';
+import { IClient } from '../../db/schemas/client';
+import { Scope } from '../interfaces';
+import { IUser } from '../../db/schemas/user';
+import { IToken } from '../../db/schemas/token';
 
 export default class TokenModel {
   public accessToken: string;
-  public accessTokenExpiresAt: number;
-  public client: string;
+  public accessTokenExpiresAt: Date;
+  public client: IClient;
   public refreshToken: string;
-  public refreshTokenExpiresAt: number;
+  public refreshTokenExpiresAt: Date;
   public accessTokenLifetime: number;
-  public scope: string[];
-  public user: string;
-  public customAttributes: any;
+  public scope: Scope;
+  public user: IUser;
 
   public static modelAttributes = ['accessToken', 'accessTokenExpiresAt', 'refreshToken', 'refreshTokenExpiresAt', 'scope', 'client', 'user'];
 
-  constructor(data: any = {}, options: any) {
-    if (!data.accessToken) {
+  constructor(token: IToken) {
+    if (!token.accessToken) {
       throw new InvalidArgumentError('Missing parameter: `accessToken`');
     }
   
-    if (!data.client) {
+    if (!token.client) {
       throw new InvalidArgumentError('Missing parameter: `client`');
     }
   
-    if (!data.user) {
+    if (!token.user) {
       throw new InvalidArgumentError('Missing parameter: `user`');
     }
   
-    if (data.accessTokenExpiresAt && !(data.accessTokenExpiresAt instanceof Date)) {
+    if (token.accessTokenExpiresAt && !(token.accessTokenExpiresAt instanceof Date)) {
       throw new InvalidArgumentError('Invalid parameter: `accessTokenExpiresAt`');
     }
   
-    if (data.refreshTokenExpiresAt && !(data.refreshTokenExpiresAt instanceof Date)) {
+    if (token.refreshTokenExpiresAt && !(token.refreshTokenExpiresAt instanceof Date)) {
       throw new InvalidArgumentError('Invalid parameter: `refreshTokenExpiresAt`');
     }
 
-    this.accessToken = data.accessToken;
-    this.accessTokenExpiresAt = data.accessTokenExpiresAt;
-    this.client = data.client;
-    this.refreshToken = data.refreshToken;
-    this.refreshTokenExpiresAt = data.refreshTokenExpiresAt;
-    this.scope = data.scope;
-    this.user = data.user;
-
-    if (options && options.allowExtendedTokenAttributes) {
-      this.customAttributes = {};
-  
-      for (let key in data) {
-        if (data.hasOwnProperty(key) && (TokenModel.modelAttributes.indexOf(key) < 0)) {
-          this.customAttributes[key] = data[key];
-        }
-      }
-    }
+    this.accessToken = token.accessToken;
+    this.accessTokenExpiresAt = token.accessTokenExpiresAt;
+    this.client = token.client;
+    this.refreshToken = token.refreshToken;
+    this.refreshTokenExpiresAt = token.refreshTokenExpiresAt;
+    this.scope = token.scope;
+    this.user = token.user;
 
     if(this.accessTokenExpiresAt) {
-      this.accessTokenLifetime = Math.floor((this.accessTokenExpiresAt - new Date().getTime()) / 1000);
+      this.accessTokenLifetime = Math.floor((this.accessTokenExpiresAt.getTime() - new Date().getTime()) / 1000);
     }
   }
 

@@ -2,32 +2,36 @@
 import { InvalidArgumentError, InvalidScopeError } from '../errors';
 import * as is from '../validator/is';
 import { generateRandomToken } from '../../utils';
+import { IAbstractGrantTypeOptions, IAuthModel, Scope, IRequest } from '../interfaces';
+import { IClient } from '../../db/schemas/client';
+import { IUser } from '../../db/schemas/user';
+import { IToken } from '../../db/schemas/token';
 
-export default class AbstractGrantType {
+export default abstract class AbstractGrantType {
   public accessTokenLifetime: number;
   public refreshTokenLifetime: number;
-  public model: any;
+  public model: IAuthModel;
   public alwaysIssueNewRefreshToken: boolean;
 
-  constructor(accessTokenLifetime: number, refreshTokenLifetime: number, alwaysIssueNewRefreshToken: boolean, model: any) {
-    if (!accessTokenLifetime) {
+  constructor(options: IAbstractGrantTypeOptions) {
+    if (!options.accessTokenLifetime) {
       throw new InvalidArgumentError('Missing parameter: `accessTokenLifetime`');
     }
 
-    if (!model) {
+    if (!options.model) {
       throw new InvalidArgumentError('Missing parameter: `model`');
     }
 
-    this.accessTokenLifetime = accessTokenLifetime;
-    this.model = model;
-    this.refreshTokenLifetime = refreshTokenLifetime;
-    this.alwaysIssueNewRefreshToken = alwaysIssueNewRefreshToken;
+    this.accessTokenLifetime = options.accessTokenLifetime;
+    this.model = options.model;
+    this.refreshTokenLifetime = options.refreshTokenLifetime;
+    this.alwaysIssueNewRefreshToken = options.alwaysIssueNewRefreshToken;
   }
 
   /**
    * Generate access token.
    */
-  public async generateAccessToken(client: string, user: string, scope: string[]) : Promise<string> {
+  public async generateAccessToken(client: IClient, user: IUser, scope: Scope) : Promise<string> {
     if (this.model.generateAccessToken) {
       let accessToken = await this.model.generateAccessToken(client, user, scope);
       return accessToken || generateRandomToken();
@@ -39,7 +43,7 @@ export default class AbstractGrantType {
   /**
    * Generate refresh token.
    */
-  public async generateRefreshToken(client: string, user: string, scope: string[]) : Promise<string> {
+  public async generateRefreshToken(client: IClient, user: IUser, scope: Scope) : Promise<string> {
     if (this.model.generateAccessToken) {
       let refreshToken = await this.model.generateRefreshToken(client, user, scope);
       return refreshToken || generateRandomToken();
@@ -69,7 +73,7 @@ export default class AbstractGrantType {
   /**
    * Get scope from the request body.
    */
-  public getScope(request: any) : string[] {
+  public getScope(request: IRequest) : Scope {
     if (!is.nqschar(request.body.scope)) {
       throw new InvalidArgumentError('Invalid parameter: `scope`');
     }
@@ -80,7 +84,7 @@ export default class AbstractGrantType {
   /**
    * Validate requested scope.
    */
-  public async validateScope(client: string, user: string, scope: string[]) : Promise<string[]> {
+  public async validateScope(client: IClient, user: IUser, scope: Scope) : Promise<Scope> {
     if (this.model.validateScope) {
       let newScope = await this.model.validateScope(user, client, scope);
       if (!newScope) {
@@ -93,4 +97,5 @@ export default class AbstractGrantType {
     }
   }
 
+  public abstract async handle(request: IRequest, client: IClient) : Promise<IToken>;
 }

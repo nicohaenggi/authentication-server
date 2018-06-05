@@ -1,30 +1,31 @@
 // import dependencies
 import * as _ from 'lodash';
+import { OAuthServerOptions, TokenHandlerOptions, IRequest, IResponse, TokenHandlerOptionsInternal } from './interfaces';
 import TokenHandler from './handlers/token-handler';
 import { InvalidArgumentError } from './errors';
+import { IToken } from '../db/schemas/token';
 
 export default class OAuth2Server {
-  public options: any;
+  public options: OAuthServerOptions;
 
-  constructor(options: any = {}) {
-    if (!options.model) {
-      throw new InvalidArgumentError('Missing parameter: `model`');
-    }
-
+  constructor(options: OAuthServerOptions) {
     this.options = options;
   }
 
   /**
    * Create a token.
    */
-  public token(request: any, response: any, options: any) : Promise<void> {
-    options = _.assign({
+  public async token(request: IRequest, response: IResponse, options?: TokenHandlerOptions) : Promise<IToken> {
+    let tokenOptions : TokenHandlerOptionsInternal = _.assign({
       accessTokenLifetime: 60 * 60,             // 1 hour.
       refreshTokenLifetime: 60 * 60 * 24 * 14,  // 2 weeks.
       allowExtendedTokenAttributes: false,
-      requireClientAuthentication: {}           // defaults to true for all grant types
+      requireClientAuthentication: {
+        password: false,
+        refresh_token: false
+      }
     }, this.options, options);
 
-    return new TokenHandler(options).handle(request, response);
+    return await new TokenHandler(tokenOptions).handle(request, response);
   }
 }

@@ -4,7 +4,6 @@
 // import dependencies
 import * as _ from 'lodash';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-export { default as oauth } from './oauth';
 export { default as users } from './users';
 
 export interface IRequest extends Request {
@@ -25,7 +24,6 @@ function getLocationHeader(apiMethod: Function, req: Request, response: Response
 
 function addHeaders(apiMethod: Function, req: Request, res: Response, response: any) {
 	let location;
-
 	// check if a new object was created
 	if(req.method === 'POST') {
 		location = getLocationHeader(apiMethod, req, response);

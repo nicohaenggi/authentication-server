@@ -70,11 +70,11 @@ function prepareError(err: GeneralError, req: IRequest, res: Response, next: Nex
 function ErrorJSONRenderer(err: GeneralError, req: Request, res: Response, next: NextFunction) {
 	// prepare JSON response that will be sent back to the client
 	res.json({
-		errors: [{
+		error: {
 			message: err.message,
 			errorType: err.errorType,
 			code: err.statusCode
-		}]
+		}
 	});
 }
 

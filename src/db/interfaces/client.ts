@@ -2,5 +2,8 @@ export interface IClientDocument {
   name: string;
 	clientId: string;
   clientSecret: string;
-  redirectUri: string;
+  grants: string[];
+  redirectUris: string[];
+  accessTokenLifetime: number;
+  refreshTokenLifetime: number;
 }

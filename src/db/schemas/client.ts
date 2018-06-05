@@ -12,8 +12,11 @@ export const ClientModel: Schema = new Schema({
   name: { type: String, required: true },
   clientId: { type: String, required: true, unique: true, index: true },
   clientSecret: { type: String, required: true },
-  tokenType: { type: [String], required: true },
-  redirectUri: { type: String, required: true, default: null }
+  grants: { type: [String], required: true },
+  redirectUris: { type: [String], required: true, default: null },
+  accessTokenLifetime: { type: Number, required: true, default: null },
+  refreshTokenLifetime: { type: Number, required: true, default: null },
+  maxActiveSessions: { type: Number, required: true, default: null }
 }, { timestamps: true });
 
 ClientModel.statics.getClient = async function getClient(clientId: string, clientSecret?: string) : Promise<IClient> {
