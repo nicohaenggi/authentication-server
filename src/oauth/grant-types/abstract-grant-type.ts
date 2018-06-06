@@ -1,11 +1,13 @@
 // import dependenceis
-import { InvalidArgumentError, InvalidScopeError } from '../errors';
+import { InvalidArgumentError, InvalidScopeError, ForbiddenRequestError } from '../errors';
 import * as is from '../validator/is';
 import { generateRandomToken } from '../../utils';
-import { IAbstractGrantTypeOptions, IAuthModel, Scope, IRequest } from '../interfaces';
+import { IAbstractGrantTypeOptions, IAuthModel, Scope, IRequest, ISensorData } from '../interfaces';
 import { IClient } from '../../db/schemas/client';
 import { IUser } from '../../db/schemas/user';
 import { IToken } from '../../db/schemas/token';
+import { ILicense } from '../../db/schemas/license';
+import { IActivation } from '../../db/schemas/activation';
 
 export default abstract class AbstractGrantType {
   public accessTokenLifetime: number;
@@ -31,9 +33,9 @@ export default abstract class AbstractGrantType {
   /**
    * Generate access token.
    */
-  public async generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date) : Promise<string> {
+  public async generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date, license?: ILicense, activation?: IActivation) : Promise<string> {
     if (this.model.generateAccessToken) {
-      let accessToken = await this.model.generateAccessToken(client, user, scope, expiresAt);
+      let accessToken = await this.model.generateAccessToken(client, user, scope, expiresAt, license, activation);
       return accessToken || generateRandomToken();
     }
 
@@ -79,6 +81,43 @@ export default abstract class AbstractGrantType {
     }
   
     return request.body.scope;
+  }
+
+  /**
+   * Get user license
+   */
+  public async getLicense(client: IClient, user: IUser) : Promise<ILicense> {
+    // fetch current license
+    let license = await this.model.getLicenseForClientAndUser(client, user);
+    if (!license) {
+      throw new ForbiddenRequestError('Forbidden: the user does not have a license for this product');
+    }
+
+    if (license.expiresAt && license.expiresAt < new Date()) {
+      throw new ForbiddenRequestError('Forbidden: license has expired');
+    }
+
+    return license;
+  }
+
+  /**
+   * decode sensor data.
+   */
+  public decodeSensorData(sensor: any) : ISensorData {
+    let decoded = sensor as ISensorData;
+
+    if (!decoded.hwid || !decoded.arch || !decoded.cpus || !decoded.endianness || !decoded.platform || !decoded.username || !decoded.hostname || !decoded.exp || (new Date(decoded.exp * 1000) < new Date())) {
+      throw new InvalidArgumentError('Invalid Parameter: `requestId`');
+    }
+
+    return sensor;
+  }
+
+  public validateActivation(payload: ISensorData, activation: IActivation) : void {
+    if ((payload.username !== activation.username) || (payload.arch !== activation.arch) || !(JSON.stringify(payload.cpus) == JSON.stringify(activation.cpus)) ||
+      (payload.endianness !== activation.endianness) || (payload.platform !== activation.platform) || (payload.hwid !== activation.hwid) || (payload.hostname !== activation.hostname)) {
+      throw new InvalidArgumentError('Invalid parameter: `requestId`');
+    }
   }
 
   /**

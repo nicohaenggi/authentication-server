@@ -31,7 +31,7 @@ export default class PasswordGrantType extends AbstractGrantType {
   /**
    * Get user using a username/password combination.
    */
-  public async getUser(request: any) : Promise<IUser> {
+  public async getUser(request: IRequest) : Promise<IUser> {
     if (!request.body.username) {
       throw new InvalidRequestError('Missing parameter: `username`');
     }

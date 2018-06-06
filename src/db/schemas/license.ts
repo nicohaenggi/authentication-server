@@ -34,8 +34,7 @@ LicenseModel.methods.atomicIncrementActivation = async function atomicIncrementA
 	}
 
 	// make atomic counter update
-  const status = await License.update(conditions, { $inc: { count: step } });
-  console.log(status);
+  const status = await License.update(conditions, { $inc: { numActivated: step } });
 	if (status.nModified === 1) {
 		return true;
 	} else {

@@ -3,12 +3,14 @@ import { IClient } from '../db/schemas/client';
 import { IUser } from '../db/schemas/user';
 import { IToken } from '../db/schemas/token';
 import { ITokenDocument } from '../db/interfaces/token';
+import { ILicense } from '../db/schemas/license';
+import { IActivation } from '../db/schemas/activation';
 
 export type Scope = string[];
 export type Constructor<T> = new(...args: any[]) => T;
 
 export interface IAuthModel {
-  generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date) : Promise<string>;
+  generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date, license?: ILicense, activation?: IActivation) : Promise<string>;
   generateRefreshToken(client: IClient, user: IUser, scope: Scope) : Promise<string>;
   getAccessToken(accessToken: string) : Promise<IToken>;
   getRefreshToken(refreshToken: string) : Promise<IToken>;
@@ -17,6 +19,10 @@ export interface IAuthModel {
   saveToken(token: ITokenDocument) : Promise<IToken>;
   revokeToken(token: IToken) : Promise<boolean>;
   validateScope(user: IUser, client: IClient, scope: Scope) : Promise<Scope>;
+  getLicenseForClientAndUser(client: IClient, user: IUser) : Promise<ILicense>;
+  getActivationByHWID(hwid: string, license: ILicense) : Promise<IActivation>;
+  incrementActivation(license: ILicense, maxAmount: number, negative?: boolean) : Promise<boolean>;
+  addActivation(hwid: string, license: ILicense, arch: string, cpus: string[], endianness: string, platform: string, username: string, hostname: string) : Promise<IActivation>;
 };
 
 export interface OAuthServerOptions {
@@ -52,6 +58,17 @@ export interface IAbstractGrantTypeOptions {
   refreshTokenLifetime: number;
   alwaysIssueNewRefreshToken: boolean;
   model: IAuthModel;
+}
+
+export interface ISensorData {
+  hwid: string;
+  arch: string;
+  cpus: string[];
+  endianness: string;
+  platform: string;
+  username: string;
+  hostname: string;
+  exp: number;
 }
 
 export interface TokenHandlerOptionsInternal extends OAuthServerOptions, TokenHandlerOptions {};

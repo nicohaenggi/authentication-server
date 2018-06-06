@@ -23,7 +23,8 @@ export default class OAuth2Server {
       requireClientAuthentication: {
         password: false,
         password_security: false,
-        refresh_token: false
+        refresh_token: false,
+        refresh_token_security: false
       }
     }, this.options, options);
 

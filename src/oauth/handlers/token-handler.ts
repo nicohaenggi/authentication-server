@@ -12,6 +12,7 @@ import * as is from '../validator/is';
 import passwordType from '../grant-types/password-grant-type';
 import passwordSecurityType from '../grant-types/password-security-grant-type';
 import refreshTokenType from '../grant-types/refresh-token-grant-type';
+import refreshTokenSecurityType from '../grant-types/refresh-token-security-grant-type';
 import AbstractGrantType from '../grant-types/abstract-grant-type';
 
 /**
@@ -20,7 +21,8 @@ import AbstractGrantType from '../grant-types/abstract-grant-type';
 let grantTypes = {
   password: passwordType,
   password_security: passwordSecurityType,
-  refresh_token: refreshTokenType
+  refresh_token: refreshTokenType,
+  refresh_token_security: refreshTokenSecurityType
 };
 
 export default class TokenHandler {
