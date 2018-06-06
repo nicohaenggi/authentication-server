@@ -1,6 +1,6 @@
 // import dependencies
 import AbstractGrantType from './abstract-grant-type';
-import { InvalidArgumentError, InvalidGrantError, InvalidRequestError, ForbiddenRequestError } from '../errors';
+import { InvalidArgumentError, InvalidGrantError, InvalidRequestError } from '../errors';
 import * as is from '../validator/is';
 import { generateRandomToken } from '../../utils';
 import { promisify } from 'bluebird';
@@ -10,7 +10,7 @@ import { IUser } from '../../db/schemas/user';
 import { IToken } from '../../db/schemas/token';
 import { ITokenDocument } from '../../db/interfaces/token';
 
-export default class PasswordGrantType extends AbstractGrantType {
+export default class PasswordSecurityGrantType extends AbstractGrantType {
   public model: IAuthModel;
 
   constructor(options: IAbstractGrantTypeOptions) {
@@ -49,17 +49,16 @@ export default class PasswordGrantType extends AbstractGrantType {
     }
 
     let user = await this.model.getUser(request.body.username, request.body.password);
-    
     if (!user) {
       throw new InvalidGrantError('Invalid grant: user credentials are invalid');
     }
 
-    if (!user.isVerified()) {
-      throw new ForbiddenRequestError('Forbidden: your account is not verified');
-    }
-
     return user;
   }
+
+  /**
+   * Get sensor data
+   */
 
   /**
    * Save token.
@@ -83,5 +82,6 @@ export default class PasswordGrantType extends AbstractGrantType {
 
     return await this.model.saveToken(token);
   }
+
 
 }

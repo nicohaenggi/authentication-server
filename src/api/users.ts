@@ -4,7 +4,13 @@
 // import dependencies
 import { InternalServerError, BadRequestError } from '../errors';
 import { User, IUser } from '../db/schemas/user';
+import { OneTimeToken, IOneTimeToken } from '../db/schemas/one-time-token';
+import { expiresIn } from '../utils';
+import { sendVerificationEmail } from '../mailer/templates';
+import config from '../configuration';
 import i18n from '../i18n';
+
+const EMAIL_EXPIRES_IN = config.get('settings:emailExpiresIn');
 
 /** Users API Routes
 * implements the users API Routes
@@ -35,9 +41,13 @@ const register = async function register(options: any, object: any) : Promise<IU
   // create new customer in the database
   const user = await add(options, object);
 
-  // make sure to verify email
-  // !TODO
+  // create email verification token and discord verification state
+  const expiresAt = expiresIn(EMAIL_EXPIRES_IN);
+  const verifyEmailToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
+  const verifyDiscordToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
 
+  // send verification email
+  sendVerificationEmail(user.username, verifyEmailToken, verifyDiscordToken);
   return user;
 }
 

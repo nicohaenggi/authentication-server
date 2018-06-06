@@ -8,7 +8,7 @@ export type Scope = string[];
 export type Constructor<T> = new(...args: any[]) => T;
 
 export interface IAuthModel {
-  generateAccessToken(client: IClient, user: IUser, scope: Scope) : Promise<string>;
+  generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date) : Promise<string>;
   generateRefreshToken(client: IClient, user: IUser, scope: Scope) : Promise<string>;
   getAccessToken(accessToken: string) : Promise<IToken>;
   getRefreshToken(refreshToken: string) : Promise<IToken>;

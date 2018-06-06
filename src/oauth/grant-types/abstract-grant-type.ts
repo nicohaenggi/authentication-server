@@ -31,9 +31,9 @@ export default abstract class AbstractGrantType {
   /**
    * Generate access token.
    */
-  public async generateAccessToken(client: IClient, user: IUser, scope: Scope) : Promise<string> {
+  public async generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date) : Promise<string> {
     if (this.model.generateAccessToken) {
-      let accessToken = await this.model.generateAccessToken(client, user, scope);
+      let accessToken = await this.model.generateAccessToken(client, user, scope, expiresAt);
       return accessToken || generateRandomToken();
     }
 

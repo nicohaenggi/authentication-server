@@ -61,3 +61,9 @@ export const generateRandomToken = async function generateRandomToken() : Promis
   let randBuffer = await randomBytes(256);
   return await crypto.createHash('sha1').update(randBuffer).digest('hex');
 }
+
+export const expiresIn = function expiresIn(seconds: number) : Date {
+  let expires = new Date();
+  expires.setSeconds(expires.getSeconds() + seconds);
+  return expires;
+}

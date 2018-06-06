@@ -6,4 +6,5 @@ export interface IClientDocument {
   redirectUris: string[];
   accessTokenLifetime: number;
   refreshTokenLifetime: number;
+  maxActiveSessions: number;
 }

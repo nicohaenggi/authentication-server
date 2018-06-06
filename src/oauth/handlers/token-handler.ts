@@ -10,6 +10,7 @@ import * as auth from 'basic-auth';
 import * as is from '../validator/is';
 
 import passwordType from '../grant-types/password-grant-type';
+import passwordSecurityType from '../grant-types/password-security-grant-type';
 import refreshTokenType from '../grant-types/refresh-token-grant-type';
 import AbstractGrantType from '../grant-types/abstract-grant-type';
 
@@ -18,6 +19,7 @@ import AbstractGrantType from '../grant-types/abstract-grant-type';
  */
 let grantTypes = {
   password: passwordType,
+  password_security: passwordSecurityType,
   refresh_token: refreshTokenType
 };
 
@@ -171,7 +173,6 @@ export default class TokenHandler {
     let refreshTokenLifetime = this.getRefreshTokenLifetime(client);
     let Type = this.grantTypes[grantType] as Constructor<AbstractGrantType>;
 
-    // !TODO: not good
     let options: IAbstractGrantTypeOptions = {
       accessTokenLifetime: accessTokenLifetime,
       refreshTokenLifetime: refreshTokenLifetime,

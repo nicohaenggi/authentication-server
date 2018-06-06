@@ -275,6 +275,22 @@ export class UnauthorizedRequestError extends OAuthError {
 }
 
 /**
+ * ForbiddenRequestError
+ * 
+ * @extends GeneralError
+ */
+export class ForbiddenRequestError extends OAuthError {
+  public constructor(messageOrError: Error | string, options?: any) {
+    options = _.assign({
+      code: 403,
+      name: 'forbidden_request'
+    }, options)
+
+    super(messageOrError, options);
+  }
+}
+
+/**
  * UnsupportedGrantTypeError
  * 
  * "The authorization grant type is not supported by the authorization server."

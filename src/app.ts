@@ -44,12 +44,17 @@ app.use(middleware.auth.decodeAuthToken);
 app.param('id', middleware.validation.id);
 
 export function addRoutes() : void {
-  // # register routes
+  // # user routes
   app.post('/api/users', api.http(api.users.register) );
   app.get('/api/users/me', api.http(api.users.me) );
 
+  // # verification routes
+  app.get('/api/verify/email', api.http(api.verify.email) );
+  app.get('/api/verify/discord', api.http(api.verify.discord) );
+
   // # oauth routes
   app.post('/api/oauth/token', oauth.token.bind(oauth) );
+
 
   // # customer routes
   // app.get('/api/customers', middleware.auth.requireAPICredentials, api.http(api.customers.browse) );

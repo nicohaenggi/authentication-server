@@ -5,9 +5,10 @@ import { ITokenDocument } from '../interfaces/token';
 import config from '../../configuration';
 import { IClient } from './client';
 import { IUser } from './user';
-import { METHODS } from 'http';
+import { generateRandomToken } from '../../utils';
 
 const JWT_SECRET = config.get('jwt:secret');
+const JWT_ISSUER = config.get('jwt:issuer');
 
 export interface IToken extends ITokenDocument, Document {
   revoke() : Promise<boolean>;
@@ -17,7 +18,7 @@ export interface ITokenModel extends Model<IToken>  {
   getAccessToken(accessToken: string) : Promise<IToken>;
   getRefreshToken(refreshToken: string) : Promise<IToken>;
   createToken(token: ITokenDocument) : Promise<IToken>;
-  generateAccessToken(client: IClient, user: IUser, scope: string[]) : Promise<string>;
+  generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date) : Promise<string>;
 }
 
 export const TokenModel: Schema = new Schema({
@@ -49,12 +50,20 @@ TokenModel.statics.getRefreshToken = async function getRefreshToken(refreshToken
     .exec();
 }
 
-TokenModel.statics.generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: string[]) : Promise<string> {
+TokenModel.statics.generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date) : Promise<string> {
+  let randId = await generateRandomToken();
   // create new JWT token
-  // !TODO: implement real JWT
+  // !TODO: implement RSA JWT
   return jwt.sign({
-    exp: Math.floor(Date.now() / 1000) + (60 * 60),
-    data: 'foobar'
+    id: randId,
+    jto: randId,
+    iss: JWT_ISSUER,
+    aud: client.clientId,
+    sub: user._id,
+    exp: Math.floor(expiresAt.getTime()/1000),
+    iat: Math.floor(Date.now()/1000),
+    token_type: 'Bearer',
+    scope: scope
   }, JWT_SECRET);
 }
 

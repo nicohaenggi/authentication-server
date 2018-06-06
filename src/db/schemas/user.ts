@@ -1,5 +1,6 @@
 // import dependencies
 import * as bcrypt from 'bcrypt';
+import * as validator from 'validator';
 import { Document, Schema, Model, model, HookNextFunction} from 'mongoose';
 import { IUserDocument } from '../interfaces/user';
 
@@ -7,16 +8,23 @@ const SALT_WORK_FACTOR = 12;
 
 export interface IUser extends IUserDocument, Document {
 	comparePassword(comparePassword: string) : Promise<boolean>;
+	isVerified() : boolean;
+	setEmailVerified() : Promise<IUser>;
+	linkDiscord(discordId: string) : Promise<IUser>;
 }
 
 export interface IUserModel extends Model<IUser>  {
-  getUser(username: string, password: string) : Promise<IUser>;
+	getUser(username: string, password: string) : Promise<IUser>;
 }
 
 export const UserModel: Schema = new Schema({
-  username: { type: String, required: true, unique: true, index: true, lowercase: true },
+  username: { type: String, required: true, unique: true, index: true, lowercase: true, validate: { 
+		validator: (username: string) => validator.isEmail(username), 
+		message: '{VALUE} is not a valid email' } 
+	},
 	password: { type: String, required: true },
-	verified: { type: Boolean, required: true, default: false }
+	emailVerified: { type: Boolean, required: true, default: false },
+	discordId: { type: String, default: null }
 }, { timestamps: true });
 
 UserModel.pre<IUser>('save', async function(next: HookNextFunction) {
@@ -38,6 +46,24 @@ UserModel.pre<IUser>('save', async function(next: HookNextFunction) {
 
 UserModel.methods.comparePassword = async function comparePassword(comparePassword: string) : Promise<boolean> {
 	return await bcrypt.compare(comparePassword, this.password);
+};
+
+UserModel.methods.setEmailVerified = async function setEmailVerified() : Promise<IUser> {
+	this.emailVerified = true;
+	return await this.save();
+};
+
+UserModel.methods.linkDiscord = async function linkDiscord(discordId: string) : Promise<IUser> {
+	// prevent linking more than once
+	if (this.discordId != null) return null; 
+
+	// link discord account
+	this.discordId = discordId;
+	return await this.save();
+}
+
+UserModel.methods.isVerified = function isVerified() : boolean {
+	return this.emailVerified && (this.discordId != null);
 };
 
 UserModel.statics.getUser = async function getUser(username: string, password: string) : Promise<IUser> {

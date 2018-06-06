@@ -88,11 +88,11 @@ export default class RefreshTokenGrantType extends AbstractGrantType {
    * Save token.
    */
   public async saveToken(user: IUser, client: IClient, scope: Scope) : Promise<IToken> {
-    let accessToken = await this.generateAccessToken(client, user, scope);
-    let refreshToken = await this.generateRefreshToken(client, user, scope);
     let accessTokenExpiresAt = this.getAccessTokenExpiresAt();
     let refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();
-
+    let accessToken = await this.generateAccessToken(client, user, scope, accessTokenExpiresAt);
+    let refreshToken = await this.generateRefreshToken(client, user, scope);
+   
     let token : ITokenDocument = {
       scope: scope,
       accessToken,

@@ -5,8 +5,8 @@ import { Token, IToken } from '../db/schemas/token';
 import { ITokenDocument } from '../db/interfaces/token';
 import { generateRandomToken } from '../utils';
 
-const generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: Scope) : Promise<string> {
-  return await Token.generateAccessToken(client, user, scope);
+const generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date) : Promise<string> {
+  return await Token.generateAccessToken(client, user, scope, expiresAt);
 }
 
 const generateRefreshToken = async function generateRefreshToken(client: IClient, user: IUser, scope: Scope) : Promise<string> {

@@ -39,6 +39,9 @@
 			},
 			"customers": {
 				"notFound": "errors.api.customers.notFound"
+			},
+			"verify": {
+				"notFound": "errors.api.verify.notFound"
 			}
 		}
 	}

@@ -5,6 +5,7 @@
 import * as _ from 'lodash';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 export { default as users } from './users';
+export { default as verify } from './verify';
 
 export interface IRequest extends Request {
   isAdmin?: boolean;
