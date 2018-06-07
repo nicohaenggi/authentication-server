@@ -40,8 +40,7 @@ const revokeToken = async function revokeToken(token: IToken) : Promise<boolean>
 }
 
 const validateScope = async function validateScope(user: IUser, client: IClient, scope: Scope) : Promise<Scope> {
-  // use default scope
-  return scope;
+  return scope; // use default scope
 }
 
 const getLicenseForClientAndUser = async function getLicenseForClientAndUser(client: IClient, user: IUser) : Promise<ILicense> {

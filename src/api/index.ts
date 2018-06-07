@@ -4,37 +4,50 @@
 // import dependencies
 import * as _ from 'lodash';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
+import config from '../configuration';
+import { IUser } from '../db/schemas/user';
+import { IJWTToken } from '../oauth/interfaces';
 export { default as users } from './users';
 export { default as verify } from './verify';
+export { default as licenses } from './licenses';
+
+const BASE_URL = config.get('settings:baseUrl');
 
 export interface IRequest extends Request {
   isAdmin?: boolean;
-  file?: any;
+  user?: string;
+	jwt?: IJWTToken;
+	file?: any;
 }
 
-function getLocationHeader(apiMethod: Function, req: Request, response: Response) {
+function assignLocationHeader(apiMethod: Function, req: Request, res: Response, response: any) : void {
 	let location;
+	let status = 201;
 
-	// make sure that the location header is only added to 'POST requests'
-	if(req.method === 'POST') {
-		// check which API method has been called in order to determine result
+	// check which API method has been called in order to determine result
+	if(req.path === '/api/verify/email') {
+		location = BASE_URL + '/verification/email';
+		status = 301;
+	} else if (req.path === '/api/verify/discord') {
+		location = BASE_URL + '/verification/discord';
+		status = 301;
 	}
 
-	return location;
+	// assign location to response
+	if (location) {
+		res.set({ Location: location });
+		res.status(status);
+	}
 }
 
 function addHeaders(apiMethod: Function, req: Request, res: Response, response: any) {
 	let location;
 	// check if a new object was created
-	if(req.method === 'POST') {
-		location = getLocationHeader(apiMethod, req, response);
-		if(location) {
-			// # a new object was created
-			// set location header to indicate where the object was created
-			// the status code should be set to 201 Created
-			res.set({ Location: location });
-			res.status(201);
-		}
+	if(req.method === 'POST' || req.method === 'GET') {
+		// # a new object was created
+		// set location header to indicate where the object was created
+		// the status code should be set to 201 Created
+		assignLocationHeader(apiMethod, req, res, response);
 	}
 }
 
@@ -53,24 +66,30 @@ export function http(apiMethod: Function) : RequestHandler {
 		let options = _.extend({}, req.file, { ip: req.ip }, req.query, req.params, {
 			context: {
 				// add admin payload if he is authenticated
-				isAdmin: req.isAdmin
+				isAdmin: req.isAdmin,
+				user: req.user,
+				jwt: req.jwt
 			}
 		});
 
 		// call API method with the prepared properties
 		try {
 			let response = await apiMethod(options, object);
-			// add headers to API response
-			await addHeaders(apiMethod, req, res, response);
-
+			
+			// set status
+			res.status(200);
+		
 			// check if the request method is DELETE
 			if(req.method === 'DELETE') {
 				// set status code to No Content (204)
 				return res.status(204).end();
 			}
 
+			// add headers to API responseco
+			await addHeaders(apiMethod, req, res, response);
+
 			// send a properly formatted HTTP response containing the json data
-			res.status(200).json(response || {});
+			res.json(response || {});
 		} catch (err) {
 			// # error should be handled by the error middleware
 			// call next in order to continue middleware chain

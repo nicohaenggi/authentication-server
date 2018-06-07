@@ -37,6 +37,20 @@ export interface TokenHandlerOptions {
   alwaysIssueNewRefreshToken: boolean;
 }
 
+export interface IJWTToken {
+  id: string;
+  jto: string;
+  iss: string;
+  aud: string;
+  sub: string;
+  exp: number;
+  iat: number;
+  token_type: string;
+  scope: string[]
+  license?: { expiresAt: Date };
+  activation?: ISensorData
+}
+
 export interface IClientCredentials {
   clientId: string;
   clientSecret?: string;

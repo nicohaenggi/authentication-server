@@ -29,8 +29,8 @@ const email = async function email(options: any, object: any) : Promise<any> {
   
   // return response
   return {
-    status: 'success',
-    message: 'Your email was successfully verified.'
+    status: 200,
+    message: 'Your email address was successfully verified.'
   };
 }
 
@@ -82,8 +82,8 @@ const discord = async function discord(options: any, object: any) : Promise<any>
     }
 
     return {
-      status: 'success',
-      message: 'Your discord was successfully linked.'
+      status: 200,
+      message: 'Your Discord account was successfully linked.'
     };
   } catch (err) {
     throw new InternalServerError();

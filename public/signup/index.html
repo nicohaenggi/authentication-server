@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Kickmoji - Register</title>
+</head>
+
+<body>
+
+  <h1>Register your Kickmoji account today.</h1>
+
+  <form id="register__form">
+    <input type="email" name="username" id="username" placeholder="email" />
+    <input type="password" name="password" id="password" placeholder="password" />
+    <input type="password" name="password2" id="password2" placeholder="confirm password" />
+    <button>Register</button>
+  </form>
+
+  <p id="error_message"></p>
+
+  <a href="../forgot">Forgot your password?</a>
+
+  <!-- SCRIPTS -->
+  <script src="../assets/js/index.js"></script>
+  <script>
+    // reset password handler
+    document.getElementById('register__form').addEventListener('submit', function(evt) {
+      evt.preventDefault();
+      let errorMessage = document.getElementById('error_message');
+      
+      errorMessage.innerHTML = '';
+
+      // fetch details
+      let username = document.getElementById('username').value;
+      let password = document.getElementById('password').value;
+      let password2 = document.getElementById('password2').value;
+
+      // make sure password match
+      if (password !== password2) {
+        errorMessage.innerHTML = 'The passwords are not matching.';
+      }
+
+      let payload = {
+        username: username,
+        password: password
+      };
+
+      fetch(BASE_URL + '/api/users', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(res => res.json())
+        .then(result => {
+          derrorMessage.innerHTML = 'Account was successfully registered. Please check your emails.';
+        })
+        .catch(err => {
+          errorMessage.innerHTML = 'An error occurred trying to create the account.';
+        });
+
+    });
+  </script>
+
+</body>
+
+</html>

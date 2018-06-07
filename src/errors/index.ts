@@ -174,6 +174,27 @@ export class NotVerifiedError extends GeneralError {
 }
 
 /**
+ * TokenExpiredError - error used for indicating that the user has not been verified yet (404)
+ * @extends GeneralError
+ */
+export class TokenExpiredError extends GeneralError {
+    /**
+     * constructor - creates a not verified error
+     *
+     * @param {Object} options the error options (message, statusCode, errorType) 
+     */
+    constructor(options?: any) {
+        super(_.merge({
+            statusCode: 401,
+            errorCode: 4002,
+            errorType: 'TokenExpiredError',
+            message: i18n.__('errors.types.tokenExpiredError')
+        }, options));
+    }
+}
+
+
+/**
  * ValidationError - error used for indicating that validation has failed (422)
  * @extends GeneralError
  */

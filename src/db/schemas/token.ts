@@ -1,8 +1,8 @@
 // import dependencies
 import * as fs from 'fs';
+import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import { Document, Schema, Model, model} from 'mongoose';
-import * as jwt from 'jsonwebtoken';
 import { ITokenDocument } from '../interfaces/token';
 import config from '../../configuration';
 import { IClient } from './client';

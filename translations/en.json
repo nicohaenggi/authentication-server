@@ -9,7 +9,8 @@
 			"noPermissionError": "You do not have the required permission to perform this request.",
 			"notVerifiedError": "Your account is not verified. Please verify your email before proceeding.",
 			"validationError": "The validation rules have not been met by the request.",
-			"adRequestError": "errors.types.adRequestError"
+			"adRequestError": "errors.types.adRequestError",
+			"tokenExpiredError": "errors.types.tokenExpiredError"
 		},
 		"api": {
 			"common": {
@@ -18,7 +19,8 @@
 			},
 			"users": {
 				"notFound": "user could not be found",
-				"notCreated": "user could not be created"
+				"notCreated": "user could not be created",
+				"emailAlreadyTaken": "errors.api.users.emailAlreadyTaken"
 			},
 			"authentication": {
 				"notFoundOrWrong": "the user could not be found or the password is wrong"
@@ -42,6 +44,12 @@
 			},
 			"verify": {
 				"notFound": "errors.api.verify.notFound"
+			},
+			"license": {
+				"alreadyMigrated": "errors.api.license.alreadyMigrated"
+			},
+			"client": {
+				"notFound": "errors.api.client.notFound"
 			}
 		}
 	}
