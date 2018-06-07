@@ -9,8 +9,7 @@
 			"noPermissionError": "You do not have the required permission to perform this request.",
 			"notVerifiedError": "Your account is not verified. Please verify your email before proceeding.",
 			"validationError": "The validation rules have not been met by the request.",
-			"adRequestError": "errors.types.adRequestError",
-			"tokenExpiredError": "errors.types.tokenExpiredError"
+			"tokenExpiredError": "The authentication token has expired and must be renewed."
 		},
 		"api": {
 			"common": {
@@ -20,36 +19,19 @@
 			"users": {
 				"notFound": "user could not be found",
 				"notCreated": "user could not be created",
-				"emailAlreadyTaken": "errors.api.users.emailAlreadyTaken"
+				"emailAlreadyTaken": "email is already taken"
 			},
 			"authentication": {
-				"notFoundOrWrong": "the user could not be found or the password is wrong"
-			},
-			"missions": {
-				"notFound": "mission could not be found",
-				"notCreated": "mission could not be created"
-			},
-			"captcha": {
-				"notFound": "errors.api.captcha.notFound"
-			},
-			"topups": {
-				"notFound": "errors.api.topups.notFound"
-			},
-			"orders": {
-				"notEnoughCredits": "errors.api.orders.notEnoughCredits",
-				"notEnoughLives": "errors.api.orders.notEnoughLives"
-			},
-			"customers": {
-				"notFound": "errors.api.customers.notFound"
+				"notFoundOrWrong": "user could not be found or the password is wrong"
 			},
 			"verify": {
-				"notFound": "errors.api.verify.notFound"
+				"notFound": "verification could not be found"
 			},
 			"license": {
-				"alreadyMigrated": "errors.api.license.alreadyMigrated"
+				"alreadyMigrated": "license is already migrated"
 			},
 			"client": {
-				"notFound": "errors.api.client.notFound"
+				"notFound": "client could not be found"
 			}
 		}
 	}

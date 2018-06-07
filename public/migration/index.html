@@ -57,7 +57,7 @@
       })
         .then(res => res.json())
         .then(result => {
-          derrorMessage.innerHTML = 'Account was successfully registered. Please check your emails.';
+          errorMessage.innerHTML = 'Account was successfully registered. Please check your emails.';
         })
         .catch(err => {
           errorMessage.innerHTML = 'An error occurred trying to create the account.';
