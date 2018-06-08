@@ -138,7 +138,7 @@ export default abstract class AbstractGrantType {
   }
 
   private decrypt(client: IClient, text: string) : ISensorData{
-    let decipher = crypto.createDecipher('aes-256-ctr', client.fingerprintSecret);
+    let decipher = crypto.createDecipheriv('aes-256-ctr', new Buffer(client.fingerprintSecret), new Buffer(client.fingerprintSecret.slice(0, 16)));
     let dec = decipher.update(text, 'hex', 'utf8');
     dec += decipher.final('utf8');
     return JSON.parse(dec);
