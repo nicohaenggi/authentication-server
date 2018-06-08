@@ -36,7 +36,20 @@ export default abstract class AbstractGrantType {
    */
   public async generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date, license?: ILicense, activation?: IActivation) : Promise<string> {
     if (this.model.generateAccessToken) {
-      let accessToken = await this.model.generateAccessToken(client, user, scope, expiresAt, license, activation);
+      // encrypt activation payload
+      let activationPayload = {
+        hwid: activation.hwid,
+        hostname: activation.hostname,
+        arch: activation.arch,
+        cpus: activation.cpus,
+        endianness: activation.endianness,
+        platform: activation.platform,
+        username: activation.username,
+      };
+      let activationEnc = this.encrypt(client, activationPayload);
+
+      // generate access token
+      let accessToken = await this.model.generateAccessToken(client, user, scope, expiresAt, license, activationEnc);
       return accessToken || generateRandomToken();
     }
 
@@ -137,11 +150,18 @@ export default abstract class AbstractGrantType {
     }
   }
 
-  private decrypt(client: IClient, text: string) : ISensorData{
+  private decrypt(client: IClient, text: string) : ISensorData {
     let decipher = crypto.createDecipheriv('aes-256-cbc', new Buffer(client.fingerprintSecret), new Buffer(client.fingerprintSecret.slice(0, 16)));
     let dec = decipher.update(text, 'hex', 'utf8');
     dec += decipher.final('utf8');
     return JSON.parse(dec);
+  }
+
+  private encrypt(client: IClient, activation: any) : string {
+    let cipher = crypto.createCipheriv('aes-256-cbc', new Buffer(client.fingerprintSecret), new Buffer(client.fingerprintSecret.slice(0, 16)));
+    let crypted = cipher.update(JSON.stringify(activation), 'utf8', 'hex');
+    crypted += cipher.final('hex');
+    return crypted;
   }
 
   public abstract async handle(request: IRequest, client: IClient) : Promise<IToken>;

@@ -23,7 +23,7 @@ export interface ITokenModel extends Model<IToken>  {
   getAccessToken(accessToken: string) : Promise<IToken>;
   getRefreshToken(refreshToken: string) : Promise<IToken>;
   createToken(token: ITokenDocument) : Promise<IToken>;
-  generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date, license?: ILicense, activation?: IActivation) : Promise<string>;
+  generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date, license?: ILicense, activation?: string) : Promise<string>;
 }
 
 export const TokenModel: Schema = new Schema({
@@ -55,7 +55,7 @@ TokenModel.statics.getRefreshToken = async function getRefreshToken(refreshToken
     .exec();
 }
 
-TokenModel.statics.generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date, license?: ILicense, activation?: IActivation) : Promise<string> {
+TokenModel.statics.generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date, license?: ILicense, activation?: string) : Promise<string> {
   let randId = await generateRandomToken();
   // generate payload
   let payload : any = {
@@ -77,15 +77,7 @@ TokenModel.statics.generateAccessToken = async function generateAccessToken(clie
   }
 
   if (activation) {
-    payload.activation = {
-      hwid: activation.hwid,
-      hostname: activation.hostname,
-      arch: activation.arch,
-      cpus: activation.cpus,
-      endianness: activation.endianness,
-      platform: activation.platform,
-      username: activation.username,
-    }
+    payload.activation = activation;
   }
 
   // create new JWT token

@@ -7,7 +7,7 @@ import { generateRandomToken } from '../utils';
 import { Activation, IActivation } from '../db/schemas/activation';
 import { License, ILicense } from '../db/schemas/license';
 
-const generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date, license?: ILicense, activation?: IActivation) : Promise<string> {
+const generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date, license?: ILicense, activation?: string) : Promise<string> {
   return await Token.generateAccessToken(client, user, scope, expiresAt, license, activation);
 }
 
