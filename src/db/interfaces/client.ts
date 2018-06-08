@@ -7,4 +7,5 @@ export interface IClientDocument {
   accessTokenLifetime: number;
   refreshTokenLifetime: number;
   maxActiveSessions: number;
+  fingerprintSecret: string;
 }

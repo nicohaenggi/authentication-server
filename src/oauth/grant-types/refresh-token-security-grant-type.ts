@@ -54,7 +54,7 @@ export default class RefreshTokenGrantType extends AbstractGrantType {
     }
 
     // fetch current activation
-    let payload = this.decodeSensorData(request.body.requestId);
+    let payload = this.decodeSensorData(client, request.body.requestId);
     let activation = await this.model.getActivationByHWID(payload.hwid, license);
 
     if (!activation) {

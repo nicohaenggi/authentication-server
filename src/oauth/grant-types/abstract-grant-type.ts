@@ -1,4 +1,5 @@
 // import dependenceis
+import * as crypto from 'crypto';
 import { InvalidArgumentError, InvalidScopeError, ForbiddenRequestError } from '../errors';
 import * as is from '../validator/is';
 import { generateRandomToken } from '../../utils';
@@ -103,14 +104,14 @@ export default abstract class AbstractGrantType {
   /**
    * decode sensor data.
    */
-  public decodeSensorData(sensor: any) : ISensorData {
-    let decoded = sensor as ISensorData;
+  public decodeSensorData(client: IClient, sensor: any) : ISensorData {
+    let decoded = this.decrypt(client, sensor);
 
-    if (!decoded.hwid || !decoded.arch || !decoded.cpus || !decoded.endianness || !decoded.platform || !decoded.username || !decoded.hostname || !decoded.exp || (new Date(decoded.exp * 1000) < new Date())) {
+    if (!decoded.hwid || !decoded.arch || !decoded.cpus || !decoded.endianness || !decoded.platform || !decoded.username || !decoded.hostname || !decoded.exp || (new Date(decoded.exp) < new Date())) {
       throw new InvalidArgumentError('Invalid Parameter: `requestId`');
     }
 
-    return sensor;
+    return decoded;
   }
 
   public validateActivation(payload: ISensorData, activation: IActivation) : void {
@@ -134,6 +135,13 @@ export default abstract class AbstractGrantType {
     } else {
       return scope;
     }
+  }
+
+  private decrypt(client: IClient, text: string) : ISensorData{
+    let decipher = crypto.createDecipher('aes-256-ctr', client.fingerprintSecret);
+    let dec = decipher.update(text, 'hex', 'utf8');
+    dec += decipher.final('utf8');
+    return JSON.parse(dec);
   }
 
   public abstract async handle(request: IRequest, client: IClient) : Promise<IToken>;

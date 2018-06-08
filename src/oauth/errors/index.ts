@@ -69,7 +69,7 @@ export class OAuthError extends Error {
 export class InvalidArgumentError extends OAuthError {
   public constructor(messageOrError: Error | string, options?: any) {
     options = _.assign({
-      code: 500,
+      code: 400,
       name: 'invalid_argument'
     }, options)
 
