@@ -48,7 +48,7 @@ export default abstract class AbstractGrantType {
           platform: activation.platform,
           username: activation.username,
         };
-        let activationEnc = this.encrypt(client, activationPayload);
+        activationEnc = this.encrypt(client, activationPayload);
       }
       
       // generate access token
