@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Kickmoji - Reset your password</title>
+</head>
+
+<body>
+
+  <h1>Reset your password</h1>
+
+  <form id="resend_verification_form">
+    <input type="text" name="username" id="username" placeholder="email address" />
+    <button>Resend verification</button>
+  </form>
+
+  <p id="error_message"></p>
+
+  <script src="../assets/js/index.js"></script>
+  <script>
+    // reset password handler
+    document.getElementById('resend_verification_form').addEventListener('submit', function(evt) {
+    evt.preventDefault();
+    let errorMessage = document.getElementById('error_message');
+
+    errorMessage.innerHTML = '';
+
+    // fetch details
+    let username = document.getElementById('username').value;
+
+    let payload = {
+      username: username
+    };
+
+    fetch(BASE_URL + '/api/verification/resend', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(result => {
+        errorMessage.innerHTML = 'The verification email was successfuyll resent.';
+      })
+      .catch(err => {
+        errorMessage.innerHTML = 'An error occurred trying to resend the verification email.';
+      });
+    });
+  </script>
+</body>
+
+</html>

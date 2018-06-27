@@ -56,10 +56,6 @@ export function addRoutes() : void {
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );
 
-  // # verification routes
-  app.get('/verification/email', api.render(api.verification.email) );
-  app.get('/verification/discord', api.render(api.verification.discord) );
-
   // # reset password route
   app.post('/api/reset/password/request', api.http(api.users.resetPasswordRequest) );
   app.post('/api/reset/password/confirmation', api.http(api.users.resetPasswordConfirmation) );
@@ -69,6 +65,11 @@ export function addRoutes() : void {
 
   // # admin routes
   app.post('/api/admin/users/:id/license', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );
+
+  // ## RENDER FILES
+  // # verification routes
+  app.get('/verification/email', api.render(api.verification.email) );
+  app.get('/verification/discord', api.render(api.verification.discord) );
 
   // # serve static files
   app.use('/', express.static(path.join(__dirname, '..' ,'public'), {
