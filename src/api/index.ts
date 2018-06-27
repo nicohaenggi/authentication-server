@@ -4,14 +4,10 @@
 // import dependencies
 import * as _ from 'lodash';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import config from '../configuration';
-import { IUser } from '../db/schemas/user';
 import { IJWTToken } from '../oauth/interfaces';
 export { default as users } from './users';
-export { default as verify } from './verify';
+export { default as verification } from './verification';
 export { default as licenses } from './licenses';
-
-const BASE_URL = config.get('settings:baseUrl');
 
 export interface IRequest extends Request {
   isAdmin?: boolean;
@@ -22,26 +18,15 @@ export interface IRequest extends Request {
 
 function assignLocationHeader(apiMethod: Function, req: Request, res: Response, response: any) : void {
 	let location;
-	let status = 201;
-
-	// check which API method has been called in order to determine result
-	if(req.path === '/api/verify/email') {
-		location = BASE_URL + '/verification/email';
-		status = 301;
-	} else if (req.path === '/api/verify/discord') {
-		location = BASE_URL + '/verification/discord';
-		status = 301;
-	}
 
 	// assign location to response
 	if (location) {
 		res.set({ Location: location });
-		res.status(status);
+		res.status(201);
 	}
 }
 
 function addHeaders(apiMethod: Function, req: Request, res: Response, response: any) {
-	let location;
 	// check if a new object was created
 	if(req.method === 'POST' || req.method === 'GET') {
 		// # a new object was created
@@ -91,6 +76,35 @@ export function http(apiMethod: Function) : RequestHandler {
 			// send a properly formatted HTTP response containing the json data
 			res.json(response || {});
 		} catch (err) {
+			// # error should be handled by the error middleware
+			// call next in order to continue middleware chain
+			return next(err);
+		}
+	}
+}
+
+export function render(apiMethod: Function) : RequestHandler {
+	return async function apiHandler(req: IRequest, res: Response, next: NextFunction) {
+		// define two base properties which will be used in every API method call
+		let object = req.body;
+		let options = _.extend({}, req.file, { ip: req.ip }, req.query, req.params, {
+			context: {
+				// add admin payload if he is authenticated
+				isAdmin: req.isAdmin,
+				user: req.user,
+				jwt: req.jwt
+			}
+		});
+
+		// call API method with the prepared properties
+		try {
+			// set status
+			res.status(200);
+
+			// wait for method to send
+			await apiMethod(options, object, res);
+		} catch (err) {
+			console.log(err);
 			// # error should be handled by the error middleware
 			// call next in order to continue middleware chain
 			return next(err);

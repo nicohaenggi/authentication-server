@@ -7,7 +7,7 @@ import { InternalServerError, BadRequestError } from '../errors';
 import { User, IUser } from '../db/schemas/user';
 import { OneTimeToken, IOneTimeToken } from '../db/schemas/one-time-token';
 import { expiresIn } from '../utils';
-import { sendVerificationEmail } from '../mailer/templates';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../mailer/templates';
 import config from '../configuration';
 import i18n from '../i18n';
 import { License, ILicense } from '../db/schemas/license';
@@ -106,6 +106,59 @@ const myLicenses = async function myLicenses(options: any, object: any) : Promis
   return toPublicLicenseJSON(licenses);
 }
 
+
+const resendVerification = async function resendVerification(options: any, object: any) : Promise<any> {
+  // fetch user from the database
+  const user = await User.findOne({ username: object.username });
+
+   // check if a response has been returned
+   if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
+
+   // check if the user is already verified
+   if (user.isVerified()) throw new BadRequestError({ message: i18n.__('errors.api.users.alreadyVerified') });
+
+  // create email verification token and discord verification state
+  const expiresAt = expiresIn(EMAIL_EXPIRES_IN);
+  const verifyEmailToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
+  const verifyDiscordToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
+
+  // send verification email
+  sendVerificationEmail(user.username, verifyEmailToken, verifyDiscordToken);
+  return toPublicUserJSON(user);
+}
+
+const resetPasswordRequest = async function resetPasswordRequest(options: any, object: any) : Promise<any> {
+  // get user based on email
+  const user = await User.findOne({ username: object.username });
+
+  // check if user exists
+  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
+
+  // create password reset token
+  const expiresAt = expiresIn(EMAIL_EXPIRES_IN);
+  const passwordResetToken = await OneTimeToken.generateToken(expiresAt, user, 'password_reset');
+
+  // send password reset email
+  sendPasswordResetEmail(user.username, passwordResetToken);
+
+  // return sucessful response
+  return {
+    success: true,
+    status: 'The password reset was successfully initiated. Please check your email!'
+  }
+}
+
+const resetPasswordConfirmation = async function resetPasswordConfirmation(options: any, object: any) : Promise<any> {
+   // find a onetimetoken to verify
+   let token = await OneTimeToken.consumePasswordResetToken(object.token);
+
+  // add email verified
+  let user = await token.user.setNewPassword(object.password);
+
+  // return sucessful response
+  return toPublicUserJSON(user);
+}
+
 const toPublicUserJSON = function toPublicUserJSON(user: IUser) : any {
   let { username, emailVerified, discordId } = user;
   return {
@@ -134,5 +187,8 @@ export default {
   add,
   register,
   registerWithLicense,
-  myLicenses
+  myLicenses,
+  resendVerification,
+  resetPasswordRequest,
+  resetPasswordConfirmation
 }

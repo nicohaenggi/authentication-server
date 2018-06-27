@@ -37,17 +37,20 @@ export default abstract class AbstractGrantType {
   public async generateAccessToken(client: IClient, user: IUser, scope: Scope, expiresAt: Date, license?: ILicense, activation?: IActivation) : Promise<string> {
     if (this.model.generateAccessToken) {
       // encrypt activation payload
-      let activationPayload = {
-        hwid: activation.hwid,
-        hostname: activation.hostname,
-        arch: activation.arch,
-        cpus: activation.cpus,
-        endianness: activation.endianness,
-        platform: activation.platform,
-        username: activation.username,
-      };
-      let activationEnc = this.encrypt(client, activationPayload);
-
+      let activationEnc = null;
+      if (activation) {
+        let activationPayload = {
+          hwid: activation.hwid,
+          hostname: activation.hostname,
+          arch: activation.arch,
+          cpus: activation.cpus,
+          endianness: activation.endianness,
+          platform: activation.platform,
+          username: activation.username,
+        };
+        let activationEnc = this.encrypt(client, activationPayload);
+      }
+      
       // generate access token
       let accessToken = await this.model.generateAccessToken(client, user, scope, expiresAt, license, activationEnc);
       return accessToken || generateRandomToken();

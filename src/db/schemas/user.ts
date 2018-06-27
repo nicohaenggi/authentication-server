@@ -11,6 +11,7 @@ export interface IUser extends IUserDocument, Document {
 	isVerified() : boolean;
 	setEmailVerified() : Promise<IUser>;
 	linkDiscord(discordId: string) : Promise<IUser>;
+	setNewPassword(password: string) : Promise<IUser>;
 }
 
 export interface IUserModel extends Model<IUser>  {
@@ -50,6 +51,12 @@ UserModel.methods.comparePassword = async function comparePassword(comparePasswo
 
 UserModel.methods.setEmailVerified = async function setEmailVerified() : Promise<IUser> {
 	this.emailVerified = true;
+	return await this.save();
+};
+
+
+UserModel.methods.setNewPassword = async function setNewPassword(password: string) : Promise<IUser> {
+	this.password = password;
 	return await this.save();
 };
 

@@ -35,6 +35,9 @@ app.use(morgan(config.get('express:morgan')));
 // disable powered by
 app.disable('x-powered-by');
 
+// set render engine to ejs
+app.set('view engine', 'ejs')
+
 // # decode authentication token
 // decodes the auth token and assigns the current user to the request
 app.use(middleware.auth.decodeAuthToken);
@@ -50,13 +53,16 @@ export function addRoutes() : void {
   app.get('/api/users/@me', middleware.auth.requireAuthenticatedUser, api.http(api.users.me) );
   app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) );
 
+  // # resend verification
+  app.post('/api/verification/resend', api.http(api.users.resendVerification) );
+
   // # verification routes
-  app.get('/api/verify/email', api.http(api.verify.email) );
-  app.get('/api/verify/discord', api.http(api.verify.discord) );
+  app.get('/verification/email', api.render(api.verification.email) );
+  app.get('/verification/discord', api.render(api.verification.discord) );
 
   // # reset password route
-  //app.post('/api/reset/password/request', api.http(api.users.resetPasswordRequest) );
-  //app.post('/api/reset/password/verify', api.http(api.users.resetPasswordVerify) );
+  app.post('/api/reset/password/request', api.http(api.users.resetPasswordRequest) );
+  app.post('/api/reset/password/confirmation', api.http(api.users.resetPasswordConfirmation) );
 
   // # oauth routes
   app.post('/api/oauth/token', oauth.token.bind(oauth) );

@@ -2,18 +2,11 @@
 // sets up all the licenses API methods
 
 // import dependencies
-import * as request from 'request-promise';
 import { InternalServerError, BadRequestError } from '../errors';
 import { User, IUser } from '../db/schemas/user';
-import { OneTimeToken, IOneTimeToken } from '../db/schemas/one-time-token';
-import { expiresIn } from '../utils';
-import { sendVerificationEmail } from '../mailer/templates';
-import config from '../configuration';
 import i18n from '../i18n';
 import { License, ILicense } from '../db/schemas/license';
 import { Client, IClient } from '../db/schemas/client';
-
-const EMAIL_EXPIRES_IN = config.get('settings:emailExpiresIn');
 
 /** Licenses API Routes
 * implements the licenses API Routes
