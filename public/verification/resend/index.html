@@ -16,7 +16,7 @@
 
   <p id="error_message"></p>
 
-  <script src="../assets/js/index.js"></script>
+  <script src="../../assets/js/index.js"></script>
   <script>
     // reset password handler
     document.getElementById('resend_verification_form').addEventListener('submit', function(evt) {
@@ -41,7 +41,7 @@
     })
       .then(res => res.json())
       .then(result => {
-        errorMessage.innerHTML = 'The verification email was successfuyll resent.';
+        errorMessage.innerHTML = 'The verification email was successfully resent.';
       })
       .catch(err => {
         errorMessage.innerHTML = 'An error occurred trying to resend the verification email.';
