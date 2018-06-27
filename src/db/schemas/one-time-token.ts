@@ -12,6 +12,7 @@ export interface IOneTimeTokenModel extends Model<IOneTimeToken>  {
   consumeVerificationToken(token: string) : Promise<IOneTimeToken>;
   consumePasswordResetToken(token: string) : Promise<IOneTimeToken>;
   generateToken(expiresAt: Date, user: IUser, purpose: string) : Promise<string>;
+  cleanExpired() : Promise<any>;
 }
 
 export const OneTimeTokenModel: Schema = new Schema({
@@ -43,6 +44,11 @@ OneTimeTokenModel.statics.generateToken = async function generateToken(expiresAt
   });
 
   return randToken;
+}
+
+OneTimeTokenModel.statics.cleanExpired = async function cleanExpired() : Promise<any> {
+  let resp = await OneTimeToken.remove({ expiresAt: { $lt: new Date() } });
+  return resp;
 }
 
 export const OneTimeToken: IOneTimeTokenModel = model<IOneTimeToken, IOneTimeTokenModel>('OneTimeToken', OneTimeTokenModel);

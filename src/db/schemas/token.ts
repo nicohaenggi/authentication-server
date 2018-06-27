@@ -9,7 +9,6 @@ import { IClient } from './client';
 import { IUser } from './user';
 import { generateRandomToken } from '../../utils';
 import { ILicense } from './license';
-import { IActivation } from './activation';
 
 // read jwt tokens
 const JWT_ISSUER = config.get('jwt:issuer');
@@ -24,6 +23,7 @@ export interface ITokenModel extends Model<IToken>  {
   getRefreshToken(refreshToken: string) : Promise<IToken>;
   createToken(token: ITokenDocument) : Promise<IToken>;
   generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date, license?: ILicense, activation?: string) : Promise<string>;
+  cleanExpired() : Promise<any>;
 }
 
 export const TokenModel: Schema = new Schema({
@@ -86,6 +86,11 @@ TokenModel.statics.generateAccessToken = async function generateAccessToken(clie
 
 TokenModel.statics.createToken = async function createToken(token: ITokenDocument) : Promise<IToken> {
   return await this.create(token);
+}
+
+TokenModel.statics.cleanExpired = async function cleanExpired() : Promise<any> {
+  let resp = await Token.remove({ accessTokenExpiresAt: { $lt: new Date() } });
+  return resp;
 }
 
 export const Token: ITokenModel = model<IToken, ITokenModel>('Token', TokenModel);
