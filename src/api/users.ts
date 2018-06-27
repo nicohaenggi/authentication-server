@@ -124,7 +124,10 @@ const resendVerification = async function resendVerification(options: any, objec
 
   // send verification email
   sendVerificationEmail(user.username, verifyEmailToken, verifyDiscordToken);
-  return toPublicUserJSON(user);
+  return {
+    success: true,
+    status: 'The verification email was successfully resent. Please check your email!'
+  }
 }
 
 const resetPasswordRequest = async function resetPasswordRequest(options: any, object: any) : Promise<any> {
