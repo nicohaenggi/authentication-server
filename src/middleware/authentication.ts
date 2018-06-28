@@ -19,6 +19,7 @@ export interface IRequest extends Request {
   isAdmin?: boolean;
   user?: string;
   jwt?: IJWTToken;
+  bearer?: string;
 }
 
 /**
@@ -53,6 +54,7 @@ export async function decodeAuthToken(req: IRequest, res: Response, next: Functi
 
             // assign payload
             req.jwt = payload;
+            req.bearer = token;
             
             // assign found user to the token
             req.user = req.jwt.sub;

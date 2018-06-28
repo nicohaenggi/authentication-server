@@ -5,7 +5,7 @@ import { IClient } from './client';
 import { IUser } from './user';
 
 export interface ILicense extends ILicenseDocument, Document {
-  atomicIncrementActivation(step: number, maxAmount: number) : Promise<boolean>;
+  atomicIncrementActivation(step: number, maxAmount?: number) : Promise<boolean>;
 }
 
 export interface ILicenseModel extends Model<ILicense>  {
@@ -21,7 +21,7 @@ export const LicenseModel: Schema = new Schema({
 }, { timestamps: true });
 
 
-LicenseModel.methods.atomicIncrementActivation = async function atomicIncrementActivation(step: number, maxAmount: number) : Promise<boolean> {
+LicenseModel.methods.atomicIncrementActivation = async function atomicIncrementActivation(step: number, maxAmount: number = 999999) : Promise<boolean> {
 	// prepare filter conditions
 	let conditions: any = {
     _id: this._id,

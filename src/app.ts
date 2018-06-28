@@ -62,6 +62,7 @@ export function addRoutes() : void {
 
   // # oauth routes
   app.post('/api/oauth/token', oauth.token.bind(oauth) );
+  app.post('/api/oauth/deactivate', middleware.auth.requireAuthenticatedUser, api.http(api.activations.deactivate) );
 
   // # admin routes
   app.post('/api/admin/users/:id/license', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );

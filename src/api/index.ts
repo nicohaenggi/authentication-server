@@ -8,11 +8,13 @@ import { IJWTToken } from '../oauth/interfaces';
 export { default as users } from './users';
 export { default as verification } from './verification';
 export { default as licenses } from './licenses';
+export { default as activations } from './activations';
 
 export interface IRequest extends Request {
   isAdmin?: boolean;
   user?: string;
 	jwt?: IJWTToken;
+	bearer?: string;
 	file?: any;
 }
 
@@ -53,7 +55,8 @@ export function http(apiMethod: Function) : RequestHandler {
 				// add admin payload if he is authenticated
 				isAdmin: req.isAdmin,
 				user: req.user,
-				jwt: req.jwt
+				jwt: req.jwt,
+				bearer: req.bearer
 			}
 		});
 

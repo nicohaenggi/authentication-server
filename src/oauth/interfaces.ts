@@ -47,7 +47,7 @@ export interface IJWTToken {
   iat: number;
   token_type: string;
   scope: string[]
-  license?: { expiresAt: Date };
+  license?: { expiresAt: Date, id: string };
   activation?: ISensorData
 }
 

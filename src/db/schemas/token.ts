@@ -72,7 +72,8 @@ TokenModel.statics.generateAccessToken = async function generateAccessToken(clie
 
   if (license) {
     payload.license = {
-      expiresAt: license.expiresAt
+      expiresAt: license.expiresAt,
+      id: license._id
     };
   }
 
