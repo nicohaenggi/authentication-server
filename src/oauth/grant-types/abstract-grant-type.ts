@@ -47,7 +47,7 @@ export default abstract class AbstractGrantType {
           endianness: activation.endianness,
           platform: activation.platform,
           username: activation.username,
-          exp: expiresAt.getTime()/1000,
+          exp:  Math.floor(expiresAt.getTime()/1000),
           validatedByServer: true
         };
         activationEnc = this.encrypt(client, activationPayload);
@@ -125,7 +125,7 @@ export default abstract class AbstractGrantType {
   public decodeSensorData(client: IClient, sensor: any) : ISensorData {
     let decoded = this.decrypt(client, sensor);
 
-    if (!decoded.hwid || !decoded.arch || !decoded.cpus || !decoded.endianness || !decoded.platform || !decoded.username || !decoded.hostname || !decoded.exp || (new Date(decoded.exp) < new Date())) {
+    if (!decoded.hwid || !decoded.arch || !decoded.cpus || !decoded.endianness || !decoded.platform || !decoded.username || !decoded.hostname || !decoded.exp || (new Date(decoded.exp*1000) < new Date())) {
       throw new InvalidArgumentError('Invalid Parameter: `requestId`');
     }
 
@@ -133,7 +133,6 @@ export default abstract class AbstractGrantType {
   }
 
   public validateActivation(payload: ISensorData, activation: IActivation) : void {
-    console.log(payload);
     if ((payload.username !== activation.username) || (payload.arch !== activation.arch) || !(JSON.stringify(payload.cpus) == JSON.stringify(activation.cpus)) ||
       (payload.endianness !== activation.endianness) || (payload.platform !== activation.platform) || (payload.hwid !== activation.hwid) || (payload.hostname !== activation.hostname)) {
       throw new InvalidArgumentError('Invalid parameter: `requestId`');
