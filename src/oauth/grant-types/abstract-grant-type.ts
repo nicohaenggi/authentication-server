@@ -47,6 +47,8 @@ export default abstract class AbstractGrantType {
           endianness: activation.endianness,
           platform: activation.platform,
           username: activation.username,
+          exp: expiresAt.getTime()/1000,
+          validatedByServer: true
         };
         activationEnc = this.encrypt(client, activationPayload);
       }
@@ -131,6 +133,7 @@ export default abstract class AbstractGrantType {
   }
 
   public validateActivation(payload: ISensorData, activation: IActivation) : void {
+    console.log(payload);
     if ((payload.username !== activation.username) || (payload.arch !== activation.arch) || !(JSON.stringify(payload.cpus) == JSON.stringify(activation.cpus)) ||
       (payload.endianness !== activation.endianness) || (payload.platform !== activation.platform) || (payload.hwid !== activation.hwid) || (payload.hostname !== activation.hostname)) {
       throw new InvalidArgumentError('Invalid parameter: `requestId`');
