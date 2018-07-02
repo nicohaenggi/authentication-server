@@ -53,8 +53,13 @@ export default class PasswordSecurityGrantType extends AbstractGrantType {
     }
 
     let user = await this.model.getUser(request.body.username, request.body.password);
+    
     if (!user) {
       throw new InvalidGrantError('Invalid grant: user credentials are invalid');
+    }
+
+    if (!user.isVerified()) {
+      throw new ForbiddenRequestError('Forbidden: your account is not verified');
     }
 
     return user;
