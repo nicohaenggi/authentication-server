@@ -134,7 +134,7 @@ export default abstract class AbstractGrantType {
 
   public validateActivation(payload: ISensorData, activation: IActivation) : void {
     if ((payload.username !== activation.username) || (payload.arch !== activation.arch) || !(JSON.stringify(payload.cpus) == JSON.stringify(activation.cpus)) ||
-      (payload.endianness !== activation.endianness) || (payload.platform !== activation.platform) || (payload.hwid !== activation.hwid) || (payload.hostname !== activation.hostname)) {
+      (payload.endianness !== activation.endianness) || (payload.platform !== activation.platform) || (payload.hwid !== activation.hwid)) {
       throw new InvalidArgumentError('Invalid parameter: `requestId`');
     }
   }

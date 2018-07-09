@@ -17,7 +17,7 @@ export interface IActivationModel extends Model<IActivation>  {
 }
 
 export const ActivationModel: Schema = new Schema({
-  hwid: { type: String, required: true, unique: true, index: true },
+  hwid: { type: String, required: true  },
   license: { type: Schema.Types.ObjectId, ref: 'License', required: true },
   arch: { type: String, required: true },
   cpus: { type: [String], required: true },
