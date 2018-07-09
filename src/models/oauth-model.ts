@@ -47,8 +47,8 @@ const getLicenseForClientAndUser = async function getLicenseForClientAndUser(cli
   return await License.getLicenseForClientAndUser(client, user);
 }
 
-const getActivationByHWID = async function getActivationByHWID(hwid: string, license: ILicense) : Promise<IActivation> {
-  return await Activation.getActivationByHWID(hwid, license);
+const getActivationByHWIDAndLicense = async function getActivationByHWIDAndLicense(hwid: string, license: ILicense) : Promise<IActivation> {
+  return await Activation.getActivationByHWIDAndLicense(hwid, license);
 }
 
 const incrementActivation = async function incrementActivation(license: ILicense, maxAmount: number, negative: boolean = false) : Promise<boolean> {
@@ -70,7 +70,7 @@ const OAuthModel : IAuthModel = {
   saveToken,
   validateScope,
   revokeToken,
-  getActivationByHWID,
+  getActivationByHWIDAndLicense,
   getLicenseForClientAndUser,
   addActivation,
   incrementActivation

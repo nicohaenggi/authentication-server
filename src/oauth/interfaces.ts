@@ -20,7 +20,7 @@ export interface IAuthModel {
   revokeToken(token: IToken) : Promise<boolean>;
   validateScope(user: IUser, client: IClient, scope: Scope) : Promise<Scope>;
   getLicenseForClientAndUser(client: IClient, user: IUser) : Promise<ILicense>;
-  getActivationByHWID(hwid: string, license: ILicense) : Promise<IActivation>;
+  getActivationByHWIDAndLicense(hwid: string, license: ILicense) : Promise<IActivation>;
   incrementActivation(license: ILicense, maxAmount: number, negative?: boolean) : Promise<boolean>;
   addActivation(hwid: string, license: ILicense, arch: string, cpus: string[], endianness: string, platform: string, username: string, hostname: string) : Promise<IActivation>;
 };

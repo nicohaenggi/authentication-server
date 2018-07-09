@@ -23,14 +23,14 @@ const deactivate = async function read(options: any, object: any) : Promise<IAct
 
   // get activation based on hwid and acccess token
   let bearer = options.context.bearer;
-  let activation = await Activation.getActivationByHWID(sensor.hwid, license);
+  let activation = await Activation.getActivationByHWIDAndLicense(sensor.hwid, license);
   let token = await Token.getAccessToken(bearer);
   if(token == null || activation == null) throw new BadRequestError({ message: i18n.__('errors.api.activation.notFound') });
 
   // revoke the tokens
   await token.revoke();
   
-  // revoke the activation
+  // revoke the activation (decrements the numActivated counter)
   await activation.revoke();
 
   // return public license

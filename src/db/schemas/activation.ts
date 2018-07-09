@@ -11,7 +11,7 @@ export interface IActivation extends IActivationDocument, Document {
 }
 
 export interface IActivationModel extends Model<IActivation>  {
-  getActivationByHWID(hwid: string, license: ILicense) : Promise<IActivation>;
+  getActivationByHWIDAndLicense(hwid: string, license: ILicense) : Promise<IActivation>;
   addActivation(hwid: string, license: ILicense, arch: string, cpus: string[], endianness: string, platform: string, username: string, hostname: string) : Promise<IActivation>;
   getSensorData(encrypted: string, client: IClient) : Promise<ISensorData>;
 }
@@ -34,7 +34,7 @@ ActivationModel.methods.revoke = async function revoke() : Promise<boolean> {
   return !!foundAndRemoved;
 }
 
-ActivationModel.statics.getActivationByHWID = async function getActivationByHWID(hwid: string, license: ILicense) : Promise<IActivation> {
+ActivationModel.statics.getActivationByHWIDAndLicense = async function getActivationByHWIDAndLicense(hwid: string, license: ILicense) : Promise<IActivation> {
   return await Activation.findOne({ license: license._id, hwid });
 }
 

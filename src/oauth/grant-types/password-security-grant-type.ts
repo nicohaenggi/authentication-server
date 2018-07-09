@@ -80,7 +80,7 @@ export default class PasswordSecurityGrantType extends AbstractGrantType {
 
     // fetch current activation
     let payload = this.decodeSensorData(client, request.body.requestId);
-    let activation = await this.model.getActivationByHWID(payload.hwid, license);
+    let activation = await this.model.getActivationByHWIDAndLicense(payload.hwid, license);
 
     if (!activation) {
       // # there is no active activation for this machine
@@ -91,7 +91,13 @@ export default class PasswordSecurityGrantType extends AbstractGrantType {
       }
 
       // create new activation
-      return await this.model.addActivation(payload.hwid, license, payload.arch, payload.cpus, payload.endianness, payload.platform, payload.username, payload.hostname);
+      try {
+        return await this.model.addActivation(payload.hwid, license, payload.arch, payload.cpus, payload.endianness, payload.platform, payload.username, payload.hostname);
+      } catch (err) {
+        // restore current activation count and propagate error
+        await this.model.incrementActivation(license, client.maxActiveSessions, true);
+        throw err;
+      }
     } else {
       // # there is an active activation for this machine
 
