@@ -46,6 +46,11 @@ ActivationModel.statics.getSensorData = async function getSensorData(encrypted: 
 }
 
 ActivationModel.statics.addActivation = async function addActivation(hwid: string, license: ILicense, arch: string, cpus: string[], endianness: string, platform: string, username: string, hostname: string) : Promise<IActivation> {
+  // check if activation is already present 
+  let found = await Activation.findOne({ hwid, license: license._id });
+  if (found) return null;
+
+  // create a new activation
   return await Activation.create({
     hwid,
     license,
