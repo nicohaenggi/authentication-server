@@ -8,4 +8,5 @@ export interface IClientDocument {
   refreshTokenLifetime: number;
   maxActiveSessions: number;
   fingerprintSecret: string;
+  minimumVersion?: number;
 }

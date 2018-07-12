@@ -1,7 +1,5 @@
 import { setup, disconnect } from './db';
-import { User } from '../db/schemas/user';
+import { License } from '../db/schemas/license';
 
 // setup database connection
 setup();
-
-let customers : any = {};

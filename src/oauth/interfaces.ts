@@ -83,6 +83,7 @@ export interface ISensorData {
   username: string;
   hostname: string;
   exp: number;
+  version?: number;
 }
 
 export interface TokenHandlerOptionsInternal extends OAuthServerOptions, TokenHandlerOptions {};

@@ -125,8 +125,12 @@ export default abstract class AbstractGrantType {
   public decodeSensorData(client: IClient, sensor: any) : ISensorData {
     let decoded = this.decrypt(client, sensor);
 
-    if (!decoded.hwid || !decoded.arch || !decoded.cpus || !decoded.endianness || !decoded.platform || !decoded.username || !decoded.hostname || !decoded.exp || (new Date(decoded.exp*1000) < new Date())) {
+    if (!decoded.hwid || !decoded.arch || !decoded.cpus || !decoded.endianness || !decoded.platform || !decoded.username || !decoded.hostname || !decoded.exp || !decoded.version || (new Date(decoded.exp*1000) < new Date())) {
       throw new InvalidArgumentError('Invalid Parameter: `requestId`');
+    }
+
+    if (client.minimumVersion && decoded.version < client.minimumVersion) {
+      throw new ForbiddenRequestError('Forbidden: version not supported');
     }
 
     return decoded;
