@@ -70,7 +70,8 @@ UserModel.methods.linkDiscord = async function linkDiscord(discordId: string) : 
 }
 
 UserModel.methods.isVerified = function isVerified() : boolean {
-	return this.emailVerified && (this.discordId != null);
+	// return this.emailVerified && (this.discordId != null);
+	return this.emailVerified;
 };
 
 UserModel.statics.getUser = async function getUser(username: string, password: string) : Promise<IUser> {

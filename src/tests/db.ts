@@ -4,7 +4,7 @@
 // import dependencies
 import * as mongoose from 'mongoose';
 
-const MONGO_URL = 'mongodb://www.auth.kickmoji.io/kickmoji-auth';
+const MONGO_URL = 'mongodb://auth.kickmoji.io/kickmoji-auth';
 const MONGO_USER = 'admin';
 const MONGO_PASS = 'KA!D}5Z;)Q{b/?c5w]6nYV';
 
