@@ -9,8 +9,8 @@ export interface ILicenseKey extends ILicenseKeyDocument, Document {
 }
 
 export interface ILicenseKeyModel extends Model<ILicenseKey>  {
-  getLicenseForClientAndUser(client: IClient, user: IUser) : Promise<ILicense>;
-  addNewLicense(client: IClient, user: IUser, expiresAt: Date) : Promise<ILicense>;
+  // getLicenseForClientAndUser(client: IClient, user: IUser) : Promise<ILicense>;
+  // addNewLicense(client: IClient, user: IUser, expiresAt: Date) : Promise<ILicense>;
 }
 
 export const LicenseKeyModel: Schema = new Schema({
