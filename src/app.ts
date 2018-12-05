@@ -42,6 +42,16 @@ app.use(function(req, res, next) {
   next();
 });
 
+// return 200 for all options
+app.use('*', function(req, res, next) {
+  if (req.method === 'OPTIONS') {
+    res.status(200);
+    res.end();
+  } else {
+    next();
+  }
+});
+
 // set render engine to ejs
 app.set('view engine', 'ejs')
 
