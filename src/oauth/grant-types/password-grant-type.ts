@@ -8,6 +8,7 @@ import { IAuthModel, IAbstractGrantTypeOptions, IRequest, Scope, } from '../inte
 import { IClient } from '../../db/schemas/client';
 import { IUser } from '../../db/schemas/user';
 import { IToken } from '../../db/schemas/token';
+import { ILicense } from '../../db/schemas/license';
 import { ITokenDocument } from '../../db/interfaces/token';
 
 export default class PasswordGrantType extends AbstractGrantType {
@@ -23,9 +24,10 @@ export default class PasswordGrantType extends AbstractGrantType {
 
   public async handle(request: IRequest, client: IClient) : Promise<IToken> {
     let scope = this.getScope(request);
-
     let user = await this.getUser(request);
-    return await this.saveToken(user, client, scope);
+    let license = await this.getLicense(client, user);
+
+    return await this.saveToken(user, client, scope, license);
   }
 
   /**
@@ -64,11 +66,11 @@ export default class PasswordGrantType extends AbstractGrantType {
   /**
    * Save token.
    */
-  public async saveToken(user: IUser, client: IClient, scope: Scope) : Promise<IToken> {
+  public async saveToken(user: IUser, client: IClient, scope: Scope, license: ILicense) : Promise<IToken> {
     let validatedScope = await this.validateScope(client, user, scope);
     let accessTokenExpiresAt = this.getAccessTokenExpiresAt();
     let refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();
-    let accessToken = await this.generateAccessToken(client, user, scope, accessTokenExpiresAt);
+    let accessToken = await this.generateAccessToken(client, user, scope, accessTokenExpiresAt, license);
     let refreshToken = await this.generateRefreshToken(client, user, scope);
 
     let token : ITokenDocument = {

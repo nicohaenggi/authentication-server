@@ -2,11 +2,10 @@
 import AbstractGrantType from './abstract-grant-type';
 import { InvalidArgumentError, InvalidGrantError, InvalidRequestError } from '../errors';
 import * as is from '../validator/is';
-import { generateRandomToken } from '../../utils';
-import { promisify } from 'bluebird';
 import { IAuthModel, IAbstractGrantTypeOptions, IRequest, Scope, } from '../interfaces';
 import { IClient } from '../../db/schemas/client';
 import { IUser } from '../../db/schemas/user';
+import { ILicense } from '../../db/schemas/license';
 import { IToken } from '../../db/schemas/token';
 import { ITokenDocument } from '../../db/interfaces/token';
 
@@ -29,12 +28,13 @@ export default class RefreshTokenGrantType extends AbstractGrantType {
   public async handle(request: IRequest, client: IClient) : Promise<IToken> {
     // get user specified refresh token
     let refreshToken = await this.getRefreshToken(request, client);
+    let license = await this.getLicense(client, refreshToken.user);
     
     // revoke refresh token
     await this.revokeToken(refreshToken);
 
     // create new token
-    return await this.saveToken(refreshToken.user, client, refreshToken.scope);
+    return await this.saveToken(refreshToken.user, client, refreshToken.scope, license);
   }
 
   /**
@@ -51,11 +51,7 @@ export default class RefreshTokenGrantType extends AbstractGrantType {
 
     let token = await this.model.getRefreshToken(request.body.refresh_token);
 
-    if (!token) {
-      throw new InvalidGrantError('Invalid grant: refresh token is invalid');
-    }
-
-    if (token.client.clientId !== client.clientId) {
+    if (!token || token.client.clientId !== client.clientId || !token.user) {
       throw new InvalidGrantError('Invalid grant: refresh token is invalid');
     }
 
@@ -87,10 +83,10 @@ export default class RefreshTokenGrantType extends AbstractGrantType {
   /**
    * Save token.
    */
-  public async saveToken(user: IUser, client: IClient, scope: Scope) : Promise<IToken> {
+  public async saveToken(user: IUser, client: IClient, scope: Scope, license: ILicense) : Promise<IToken> {
     let accessTokenExpiresAt = this.getAccessTokenExpiresAt();
     let refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();
-    let accessToken = await this.generateAccessToken(client, user, scope, accessTokenExpiresAt);
+    let accessToken = await this.generateAccessToken(client, user, scope, accessTokenExpiresAt, license);
     let refreshToken = await this.generateRefreshToken(client, user, scope);
    
     let token : ITokenDocument = {
