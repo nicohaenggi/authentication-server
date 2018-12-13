@@ -35,7 +35,15 @@ const add = async function add(options: any, object: any) : Promise<any> {
 
   // add new license to user
   let license = await License.addNewLicense(client, user, new Date(object.expiresAt));
-  return license;
+  return toPublicLicenseJSON(license);
+}
+
+const toPublicLicenseJSON = function toPublicLicenseJSON(license: ILicense) : any {
+  let { expiresAt } = license;
+    return {
+      expiresAt,
+      id: license._id
+    };
 }
 
 export default {
