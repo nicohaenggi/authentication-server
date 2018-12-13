@@ -27,6 +27,14 @@ const read = async function read(options: any, object: any) : Promise<IUser> {
   return user;
 }
 
+const readByUsername = async function readByUsername(options: any, object: any) : Promise<IUser> {
+  // fetch a customer based on his username
+  let user: IUser = await User.findOne({ username: options.username });
+  // check if a response has been returned
+  if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
+  return user;
+}
+
 const me = async function me(options: any, object: any) : Promise<any> {
   let user = await read({ id: options.context.user }, {});
   return toPublicUserJSON(user);
@@ -186,6 +194,7 @@ const toPublicLicenseJSON = function toPublicLicenseJSON(licenses: ILicense[]) :
 
 export default {
   read,
+  readByUsername,
   me,
   add,
   register,
