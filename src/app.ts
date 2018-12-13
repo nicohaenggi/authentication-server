@@ -82,8 +82,8 @@ export function addRoutes() : void {
   app.post('/api/oauth/deactivate', middleware.auth.requireAuthenticatedUser, api.http(api.activations.deactivate) );
 
   // # admin routes
+  app.get('/api/admin/users/username/:username', middleware.auth.requireAPICredentials, api.http(api.users.readByUsername) );
   app.post('/api/admin/users/:id/license', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );
-  app.post('/api/admin/users/username/:username', middleware.auth.requireAPICredentials, api.http(api.users.readByUsername) );
 
   // ## RENDER FILES
   // # verification routes

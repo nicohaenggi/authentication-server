@@ -32,7 +32,7 @@ const readByUsername = async function readByUsername(options: any, object: any) 
   let user: IUser = await User.findOne({ username: options.username });
   // check if a response has been returned
   if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
-  return user;
+  return toPublicUserJSON(user);
 }
 
 const me = async function me(options: any, object: any) : Promise<any> {
