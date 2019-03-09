@@ -29,8 +29,8 @@ let server;
 if (isProd) {
   console.log('starting SSL server...');
   server = https.createServer({
-    key: fs.readFileSync('/etc/letsencrypt/live/auth.kickmoji.io/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/auth.kickmoji.io/fullchain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/auth.AuthServernotify.io/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/auth.AuthServernotify.io/fullchain.pem'),
   }, app);
 } else {
   console.log('starting HTTP server...');

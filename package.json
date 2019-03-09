@@ -1,8 +1,8 @@
 {
   "name": "auth-server",
   "version": "0.0.1",
-  "description": "kickmoji auth server",
-  "author": "Sad Yashica",
+  "description": "monitor auth server",
+  "author": "Nico Haenggi",
   "scripts": {
     "start": "npm run serve",
     "build": "npm run build-ts && npm run tslint",

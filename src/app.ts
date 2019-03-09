@@ -66,7 +66,7 @@ app.param('id', middleware.validation.id);
 export function addRoutes() : void {
   // # user routes
   app.post('/api/users', api.http(api.users.register) );
-  app.post('/api/users_license', api.http(api.users.registerWithLicense) );
+  app.post('/api/users_license', api.http(api.users.registerWithLicense) ); // remove
   app.get('/api/users/@me', middleware.auth.requireAuthenticatedUser, api.http(api.users.me) );
   app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) );
 
