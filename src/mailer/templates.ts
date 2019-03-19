@@ -13,18 +13,13 @@ const PATH = config.get('email:templates');
 const SEND = config.get('email:shouldSend');
 const BASE_URL = config.get('settings:baseUrl');
 
-// discord components
-const CLIENT_ID = config.get('discord:clientId');
-const REDIRECT_URI = encodeURIComponent(BASE_URL + '/verification/discord');
-
 // create mailer
 const mailer = new Mailer(EMAIL, NAME, USERNAME, PASSWORD, HOST, PORT, PATH, SEND);
 
-export const sendVerificationEmail = async function sendVerificationEmail(to: string, verifyEmailToken: string, verifyDiscordToken: string) : Promise<void> {
+export const sendVerificationEmail = async function sendVerificationEmail(to: string, verifyEmailToken: string) : Promise<void> {
   // send account verification email
   await mailer.sendTemplate('account-verification', to, {
-    verifyEmailLink: `${BASE_URL}/verification/email?token=${verifyEmailToken}`,
-    verifyDiscordLink: `https://discordapp.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=identify&response_type=code&redirect_uri=${REDIRECT_URI}&state=${verifyDiscordToken}`
+    verifyEmailLink: `${BASE_URL}/verification/email?token=${verifyEmailToken}`
   });
 }
 
@@ -34,4 +29,3 @@ export const sendPasswordResetEmail = async function sendPasswordResetEmail(to: 
     passwordResetLink: `${BASE_URL}/reset/password?token=${passwordResetToken}`,
   });
 }
-

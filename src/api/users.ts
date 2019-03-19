@@ -23,7 +23,7 @@ const read = async function read(options: any, object: any) : Promise<IUser> {
   // fetch a customer based on the id
   let user: IUser = await User.findById(options.id);
   // check if a response has been returned
-  if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
+  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
   return user;
 }
 
@@ -31,7 +31,7 @@ const readByUsername = async function readByUsername(options: any, object: any) 
   // fetch a customer based on his username
   let user: IUser = await User.findOne({ username: options.username });
   // check if a response has been returned
-  if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
+  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
   return toPublicUserJSON(user);
 }
 
@@ -56,55 +56,9 @@ const register = async function register(options: any, object: any) : Promise<IU
   // create email verification token and discord verification state
   const expiresAt = expiresIn(EMAIL_EXPIRES_IN);
   const verifyEmailToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
-  const verifyDiscordToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
 
   // send verification email
-  sendVerificationEmail(user.username, verifyEmailToken, verifyDiscordToken);
-  return toPublicUserJSON(user);
-}
-
-const registerWithLicense = async function registerWithLicense(options: any, object: any) : Promise<IUser> {
-  // check arguments
-  if (!object.username || !object.password || !object.license) {
-    throw new BadRequestError({ message: i18n.__('errors.api.arguments.error') })
-  }
-
-  // find user
-  let userTemp = await User.findOne({ username: object.username });
-  if (userTemp) throw new BadRequestError({ message: i18n.__('errors.api.users.emailAlreadyTaken') });
-
-  // check license key
-  let res = await request({
-    method: 'POST',
-    uri: 'http://manager.faggot.io:8888/secret/migrate/update',
-    json: true,
-    body: {
-      _license: object.license,
-    }
-  });
-
-  // make sure license is not already migrated
-  if (res.status !== 'Updated') {
-    throw new BadRequestError({ message: i18n.__('errors.api.license.alreadyMigrated') });
-  }
-
-  // create new customer in the database
-  const user = await add(options, object);
- 
-  // get matching client
-  let client: IClient = await Client.getClient('vBHXyHLc0OOxq5OmC7NQ8nqqSy85jdXQ'); // Kickmoji SNKRS client
-  if (client == null) throw new BadRequestError({ message: i18n.__('errors.api.client.notFound') });
- 
-  // add new license to user
-  let license = await License.addNewLicense(client, user, new Date(4102441200000)); // expires at Jan 1, 2100
-
-  // create email verification token and discord verification state
-  const expiresAt = expiresIn(EMAIL_EXPIRES_IN);
-  const verifyEmailToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
-  const verifyDiscordToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
-
-  // send verification email
-  sendVerificationEmail(user.username, verifyEmailToken, verifyDiscordToken);
+  sendVerificationEmail(user.username, verifyEmailToken);
   return toPublicUserJSON(user);
 }
 
@@ -114,28 +68,26 @@ const myLicenses = async function myLicenses(options: any, object: any) : Promis
   return toPublicLicenseJSON(licenses);
 }
 
-
 const resendVerification = async function resendVerification(options: any, object: any) : Promise<any> {
   // fetch user from the database
   const user = await User.findOne({ username: object.username });
 
-   // check if a response has been returned
-   if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
+  // check if a response has been returned
+  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
 
-   // check if the user is already verified
-   if (user.isVerified()) throw new BadRequestError({ message: i18n.__('errors.api.users.alreadyVerified') });
+  // check if the user is already verified
+  if (user.isVerified()) throw new BadRequestError({ message: i18n.__('errors.api.users.alreadyVerified') });
 
   // create email verification token and discord verification state
   const expiresAt = expiresIn(EMAIL_EXPIRES_IN);
   const verifyEmailToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
-  const verifyDiscordToken = await OneTimeToken.generateToken(expiresAt, user, 'verification');
 
   // send verification email
-  sendVerificationEmail(user.username, verifyEmailToken, verifyDiscordToken);
+  sendVerificationEmail(user.username, verifyEmailToken);
   return {
     success: true,
     status: 'The verification email was successfully resent. Please check your email!'
-  }
+  };
 }
 
 const resetPasswordRequest = async function resetPasswordRequest(options: any, object: any) : Promise<any> {
@@ -160,10 +112,13 @@ const resetPasswordRequest = async function resetPasswordRequest(options: any, o
 }
 
 const resetPasswordConfirmation = async function resetPasswordConfirmation(options: any, object: any) : Promise<any> {
-   // find a onetimetoken to verify
-   let token = await OneTimeToken.consumePasswordResetToken(object.token);
+  // find a onetimetoken to verify
+  let token = await OneTimeToken.consumePasswordResetToken(object.token);
 
-  // add email verified
+  // make sure token is valid and not expired not expired
+  if (token == null) throw new BadRequestError({ message: i18n.__('errors.api.users.passwordResetFailed') });
+
+  // set new password for user
   let user = await token.user.setNewPassword(object.password);
 
   // return sucessful response
@@ -182,10 +137,11 @@ const toPublicUserJSON = function toPublicUserJSON(user: IUser) : any {
 
 const toPublicLicenseJSON = function toPublicLicenseJSON(licenses: ILicense[]) : any[] {
   let cleaned = licenses.map((license: ILicense) : any => {
-    let { numActivated, expiresAt } = license;
+    let { numActivated, expiresAt, client } = license;
     return {
       numActivated,
       expiresAt,
+      client,
       id: license._id
     }
   });
@@ -198,7 +154,6 @@ export default {
   me,
   add,
   register,
-  registerWithLicense,
   myLicenses,
   resendVerification,
   resetPasswordRequest,

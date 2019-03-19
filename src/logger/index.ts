@@ -4,7 +4,6 @@
 // import dependencies
 import * as dateFormat from 'dateformat';
 import * as colors from 'colors/safe';
-import * as fs from 'fs';
 
 export enum DebugLevel {
   DEV = 1,

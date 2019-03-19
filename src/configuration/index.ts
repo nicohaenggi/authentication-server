@@ -22,7 +22,7 @@ class Config {
     // load in the configuration for the current enviroment
     nconf.file(environment, 'config/' + environment + '.json');
     // load in default values
-    nconf.file('default', 'config/default.js');
+    nconf.file('default', 'config/default.json');
   }
 
   /**
