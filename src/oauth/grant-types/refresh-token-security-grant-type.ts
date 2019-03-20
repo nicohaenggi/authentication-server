@@ -38,7 +38,7 @@ export default class RefreshTokenGrantType extends AbstractGrantType {
     await this.revokeToken(refreshToken);
 
     // create new token
-    return await this.saveToken(refreshToken.user, client, refreshToken.scope, license, activation);
+    return await this.saveToken(refreshToken.user, client, refreshToken.scope, activation, license);
   }
 
   /**
@@ -116,7 +116,7 @@ export default class RefreshTokenGrantType extends AbstractGrantType {
   /**
    * Save token.
    */
-  public async saveToken(user: IUser, client: IClient, scope: Scope, license: ILicense, activation: IActivation) : Promise<IToken> {
+  public async saveToken(user: IUser, client: IClient, scope: Scope, activation: IActivation, license?: ILicense) : Promise<IToken> {
     let accessTokenExpiresAt = this.getAccessTokenExpiresAt();
     let refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();
     let accessToken = await this.generateAccessToken(client, user, scope, accessTokenExpiresAt, license, activation);

@@ -66,7 +66,7 @@ export default class PasswordGrantType extends AbstractGrantType {
   /**
    * Save token.
    */
-  public async saveToken(user: IUser, client: IClient, scope: Scope, license: ILicense) : Promise<IToken> {
+  public async saveToken(user: IUser, client: IClient, scope: Scope, license?: ILicense) : Promise<IToken> {
     let validatedScope = await this.validateScope(client, user, scope);
     let accessTokenExpiresAt = this.getAccessTokenExpiresAt();
     let refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();

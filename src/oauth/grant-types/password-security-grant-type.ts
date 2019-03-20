@@ -29,7 +29,7 @@ export default class PasswordSecurityGrantType extends AbstractGrantType {
     let license = await this.getLicense(client, user);
     let activation = await this.getActivation(request, client, license);
 
-    return await this.saveToken(user, client, scope, license, activation);
+    return await this.saveToken(user, client, scope, activation, license);
   }
 
   /**
@@ -112,7 +112,7 @@ export default class PasswordSecurityGrantType extends AbstractGrantType {
   /**
    * Save token.
    */
-  public async saveToken(user: IUser, client: IClient, scope: Scope, license: ILicense, activation: IActivation) : Promise<IToken> {
+  public async saveToken(user: IUser, client: IClient, scope: Scope, activation: IActivation, license?: ILicense) : Promise<IToken> {
     let validatedScope = await this.validateScope(client, user, scope);
     let accessTokenExpiresAt = this.getAccessTokenExpiresAt();
     let refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();

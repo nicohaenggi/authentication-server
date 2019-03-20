@@ -12,6 +12,7 @@ export const ClientModel: Schema = new Schema({
   name: { type: String, required: true },
   clientId: { type: String, required: true, unique: true, index: true },
   clientSecret: { type: String, required: true },
+  licenseRequired: { type: Boolean, required: true },
   grants: { type: [String], required: true },
   redirectUris: { type: [String], default: null },
   accessTokenLifetime: { type: Number, default: null },

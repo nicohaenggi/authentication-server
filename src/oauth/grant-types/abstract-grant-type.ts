@@ -108,10 +108,16 @@ export default abstract class AbstractGrantType {
   public async getLicense(client: IClient, user: IUser) : Promise<ILicense> {
     // fetch current license
     let license = await this.model.getLicenseForClientAndUser(client, user);
+
+    // check if this client requires a license
+    if (!client.licenseRequired) return null;
+
+    // check if license is found for user
     if (!license) {
       throw new ForbiddenRequestError('Forbidden: the user does not have a license for this product');
     }
 
+    // check if license is still active and running
     if (license.expiresAt && license.expiresAt < new Date()) {
       throw new ForbiddenRequestError('Forbidden: license has expired');
     }

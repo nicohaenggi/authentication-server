@@ -57,6 +57,7 @@ TokenModel.statics.getRefreshToken = async function getRefreshToken(refreshToken
 
 TokenModel.statics.generateAccessToken = async function generateAccessToken(client: IClient, user: IUser, scope: string[], expiresAt: Date, license?: ILicense, activation?: string) : Promise<string> {
   let randId = await generateRandomToken();
+  
   // generate payload
   let payload : any = {
     id: randId,
@@ -70,6 +71,7 @@ TokenModel.statics.generateAccessToken = async function generateAccessToken(clie
     scope: scope
   };
 
+  // add license if present
   if (license) {
     payload.license = {
       expiresAt: license.expiresAt,
@@ -77,6 +79,7 @@ TokenModel.statics.generateAccessToken = async function generateAccessToken(clie
     };
   }
 
+  // add activation if present
   if (activation) {
     payload.activation = activation;
   }
