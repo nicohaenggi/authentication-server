@@ -67,8 +67,8 @@ export function addRoutes() : void {
   // # user routes
   app.post('/api/users', api.http(api.users.register) );
   app.get('/api/users/@me', middleware.auth.requireAuthenticatedUser, api.http(api.users.me) );
-  app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) ); // DO CHECK LATER
-
+  app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) );
+  
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );
 
