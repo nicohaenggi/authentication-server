@@ -90,4 +90,4 @@ export interface TokenHandlerOptionsInternal extends OAuthServerOptions, TokenHa
 export interface IRequest extends Request {};
 export interface IResponse extends Response {
   body?: any;
-};     
+};

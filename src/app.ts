@@ -68,7 +68,7 @@ export function addRoutes() : void {
   app.post('/api/users', api.http(api.users.register) );
   app.get('/api/users/@me', middleware.auth.requireAuthenticatedUser, api.http(api.users.me) );
   app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) );
-  
+
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );
 
@@ -77,8 +77,8 @@ export function addRoutes() : void {
   app.post('/api/reset/password/confirmation', api.http(api.users.resetPasswordConfirmation) );
 
   // # oauth routes
-  app.post('/api/oauth/token', oauth.token.bind(oauth) ); // DO CHECK
-  app.post('/api/oauth/deactivate', middleware.auth.requireAuthenticatedUser, api.http(api.activations.deactivate) ); // DO CHECK
+  app.post('/api/oauth/token', oauth.token.bind(oauth) );
+  // app.post('/api/oauth/deactivate', middleware.auth.requireAuthenticatedUser, api.http(api.activations.deactivate) ); // DO CHECK
 
   // # admin routes
   app.get('/api/admin/users/:id', middleware.auth.requireAPICredentials, api.http(api.users.read) );
