@@ -20,6 +20,8 @@ export const LicenseModel: Schema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 
+// add constraint so (client, user) forms a key
+LicenseModel.index({ client: 1, user: 1 }, { unique: true });
 
 LicenseModel.methods.atomicIncrementActivation = async function atomicIncrementActivation(step: number, maxAmount: number = 999999) : Promise<boolean> {
 	// prepare filter conditions

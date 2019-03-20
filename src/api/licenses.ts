@@ -16,7 +16,7 @@ const read = async function read(options: any, object: any) : Promise<ILicense> 
   // fetch a license based on the id
   let license: ILicense = await License.findById(options.id);
   // check if a response has been returned
-  if(license == null) throw new BadRequestError({ message: i18n.__('errors.api.licenses.notFound') });
+  if (license == null) throw new BadRequestError({ message: i18n.__('errors.api.licenses.notFound') });
   return license;
 }
 
@@ -27,7 +27,7 @@ const add = async function add(options: any, object: any) : Promise<any> {
 
   // fetch assigned user
   let user: IUser = await User.findById(options.id);
-  if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
+  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
 
   // get matching client
   let client: IClient = await Client.getClient(object.client);
@@ -39,8 +39,9 @@ const add = async function add(options: any, object: any) : Promise<any> {
 }
 
 const toPublicLicenseJSON = function toPublicLicenseJSON(license: ILicense) : any {
-  let { expiresAt } = license;
+  let { numActivated, expiresAt } = license;
     return {
+      numActivated,
       expiresAt,
       id: license._id
     };

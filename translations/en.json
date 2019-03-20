@@ -20,7 +20,8 @@
 				"notFound": "user could not be found",
 				"notCreated": "user could not be created",
 				"emailAlreadyTaken": "email is already taken",
-				"alreadyVerified": "errors.api.users.alreadyVerified"
+				"alreadyVerified": "errors.api.users.alreadyVerified",
+				"passwordResetFailed": "errors.api.users.passwordResetFailed"
 			},
 			"authentication": {
 				"notFoundOrWrong": "user could not be found or the password is wrong"

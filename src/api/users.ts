@@ -24,7 +24,7 @@ const read = async function read(options: any, object: any) : Promise<IUser> {
   let user: IUser = await User.findById(options.id);
   // check if a response has been returned
   if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
-  return user;
+  return toPublicUserJSON(user);
 }
 
 const readByUsername = async function readByUsername(options: any, object: any) : Promise<IUser> {
@@ -125,6 +125,7 @@ const resetPasswordConfirmation = async function resetPasswordConfirmation(optio
   return toPublicUserJSON(user);
 }
 
+
 const toPublicUserJSON = function toPublicUserJSON(user: IUser) : any {
   let { username, emailVerified, discordId } = user;
   return {
@@ -137,11 +138,10 @@ const toPublicUserJSON = function toPublicUserJSON(user: IUser) : any {
 
 const toPublicLicenseJSON = function toPublicLicenseJSON(licenses: ILicense[]) : any[] {
   let cleaned = licenses.map((license: ILicense) : any => {
-    let { numActivated, expiresAt, client } = license;
+    let { numActivated, expiresAt } = license;
     return {
       numActivated,
       expiresAt,
-      client,
       id: license._id
     }
   });
@@ -157,5 +157,5 @@ export default {
   myLicenses,
   resendVerification,
   resetPasswordRequest,
-  resetPasswordConfirmation
+  resetPasswordConfirmation,
 }

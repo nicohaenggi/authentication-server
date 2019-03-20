@@ -67,7 +67,7 @@ export function addRoutes() : void {
   // # user routes
   app.post('/api/users', api.http(api.users.register) );
   app.get('/api/users/@me', middleware.auth.requireAuthenticatedUser, api.http(api.users.me) );
-  app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) ); // DO CHECK
+  app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) ); // DO CHECK LATER
 
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );
@@ -77,17 +77,18 @@ export function addRoutes() : void {
   app.post('/api/reset/password/confirmation', api.http(api.users.resetPasswordConfirmation) );
 
   // # oauth routes
-  app.post('/api/oauth/token', oauth.token.bind(oauth) );
-  app.post('/api/oauth/deactivate', middleware.auth.requireAuthenticatedUser, api.http(api.activations.deactivate) );
+  app.post('/api/oauth/token', oauth.token.bind(oauth) ); // DO CHECK
+  app.post('/api/oauth/deactivate', middleware.auth.requireAuthenticatedUser, api.http(api.activations.deactivate) ); // DO CHECK
 
   // # admin routes
+  app.get('/api/admin/users/:id', middleware.auth.requireAPICredentials, api.http(api.users.read) );
   app.get('/api/admin/users/username/:username', middleware.auth.requireAPICredentials, api.http(api.users.readByUsername) );
   app.post('/api/admin/users/:id/license', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );
 
   // ## RENDER FILES
   // # verification routes
-  app.get('/verification/email', api.render(api.verification.email) );
-  app.get('/verification/discord', api.render(api.verification.discord) );
+  app.get('/verification/email', api.render(api.verification.email) ); // DO CHECK
+  app.get('/verification/discord', api.render(api.verification.discord) ); // DO CHECK
 
   // # serve static files
   app.use('/', express.static(path.join(__dirname, '..' ,'public'), {
