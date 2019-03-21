@@ -4,7 +4,6 @@
 /* eslint-disable no-console, no-process-exit */
 
 // import dependencies
-import * as express from 'express'
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';;

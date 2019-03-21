@@ -11,6 +11,7 @@ export interface IOneTimeToken extends IOneTimeTokenDocument, Document {}
 export interface IOneTimeTokenModel extends Model<IOneTimeToken>  {
   consumeVerificationToken(token: string) : Promise<IOneTimeToken>;
   consumePasswordResetToken(token: string) : Promise<IOneTimeToken>;
+  consumeDiscordToken(token: string) : Promise<IOneTimeToken>;
   generateToken(expiresAt: Date, user: IUser, purpose: string) : Promise<string>;
   cleanExpired() : Promise<any>;
 }
@@ -24,6 +25,12 @@ export const OneTimeTokenModel: Schema = new Schema({
 
 OneTimeTokenModel.statics.consumeVerificationToken = async function consumeVerificationToken(token: string) : Promise<IOneTimeToken> {
   return await OneTimeToken.findOneAndRemove({ token, purpose: 'verification', expiresAt: { $gt: new Date() } })
+    .populate('user')
+    .exec();
+}
+
+OneTimeTokenModel.statics.consumeDiscordToken = async function consumeDiscordToken(token: string) : Promise<IOneTimeToken> {
+  return await OneTimeToken.findOneAndRemove({ token, purpose: 'verification_discord', expiresAt: { $gt: new Date() } })
     .populate('user')
     .exec();
 }

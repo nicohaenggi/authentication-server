@@ -12,6 +12,7 @@ const PORT = config.get('email:port');
 const PATH = config.get('email:templates');
 const SEND = config.get('email:shouldSend');
 const BASE_URL = config.get('settings:baseUrl');
+const PASSWORD_RESET_LINK = config.get('redirects:passwordReset');
 
 // create mailer
 const mailer = new Mailer(EMAIL, NAME, USERNAME, PASSWORD, HOST, PORT, PATH, SEND);
@@ -26,6 +27,6 @@ export const sendVerificationEmail = async function sendVerificationEmail(to: st
 export const sendPasswordResetEmail = async function sendPasswordResetEmail(to: string, passwordResetToken: string) : Promise<void> {
   // send account verification email
   await mailer.sendTemplate('password-reset', to, {
-    passwordResetLink: `${BASE_URL}/reset/password?token=${passwordResetToken}`,
+    passwordResetLink: `${PASSWORD_RESET_LINK}?token=${passwordResetToken}`,
   });
 }

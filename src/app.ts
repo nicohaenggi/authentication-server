@@ -3,7 +3,6 @@
 
 // import dependencies
 import * as express from 'express';
-import * as path from 'path';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as debugModule from 'debug';
@@ -52,9 +51,6 @@ app.use('*', function(req, res, next) {
   }
 });
 
-// set render engine to ejs
-app.set('view engine', 'ejs')
-
 // # decode authentication token
 // decodes the auth token and assigns the current user to the request
 app.use(middleware.auth.decodeAuthToken);
@@ -68,6 +64,7 @@ export function addRoutes() : void {
   app.post('/api/users', api.http(api.users.register) );
   app.get('/api/users/@me', middleware.auth.requireAuthenticatedUser, api.http(api.users.me) );
   app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) );
+  app.get('/api/users/@me/discord/request', middleware.auth.requireAuthenticatedUser, api.http(api.verification.discordRequest) );
 
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );
@@ -87,13 +84,8 @@ export function addRoutes() : void {
 
   // ## RENDER FILES
   // # verification routes
-  app.get('/verification/email', api.render(api.verification.email) ); // DO CHECK
-  app.get('/verification/discord', api.render(api.verification.discord) ); // DO CHECK
-
-  // # serve static files
-  app.use('/', express.static(path.join(__dirname, '..' ,'public'), {
-    extensions: ['html']
-  }));
+  app.get('/verification/email', api.render(api.verification.email) );
+  app.get('/api/users/@me/discord/confirmation', api.render(api.verification.discordConfirmation) );
 }
 
 export function addErrorRoutes() : void {

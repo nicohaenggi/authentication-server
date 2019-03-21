@@ -62,7 +62,7 @@ UserModel.methods.setNewPassword = async function setNewPassword(password: strin
 
 UserModel.methods.linkDiscord = async function linkDiscord(discordId: string) : Promise<IUser> {
 	// prevent linking more than once
-	if (this.discordId != null) return null; 
+	// if (this.discordId != null) return null; 
 
 	// link discord account
 	this.discordId = discordId;
