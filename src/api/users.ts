@@ -2,7 +2,6 @@
 // sets up all the users API methods
 
 // import dependencies
-import * as request from 'request-promise';
 import { InternalServerError, BadRequestError } from '../errors';
 import { User, IUser } from '../db/schemas/user';
 import { OneTimeToken, IOneTimeToken } from '../db/schemas/one-time-token';
@@ -11,7 +10,6 @@ import { sendVerificationEmail, sendPasswordResetEmail } from '../mailer/templat
 import config from '../configuration';
 import i18n from '../i18n';
 import { License, ILicense } from '../db/schemas/license';
-import { IClient, Client } from '../db/schemas/client';
 
 const EMAIL_EXPIRES_IN = config.get('settings:emailExpiresIn');
 

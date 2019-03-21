@@ -29,11 +29,6 @@ const email = async function email(options: any, object: any, res: Response) : P
   // ensure token exists and verify user
   if (token == null) {
     return res.redirect(REDIRECTS.emailVerificationFail);
-    // return res.render('verification', {
-    //   websiteTitle: 'Email Verification',
-    //   title: 'Email Verification',
-    //   content: 'The email verification has failed because the link has either expired or does not exist.'
-    // });
   }
 
   // add email verified
@@ -41,11 +36,6 @@ const email = async function email(options: any, object: any, res: Response) : P
 
   // render email verified
   return res.redirect(REDIRECTS.emailVerificationSuccess);
-  // return res.render('verification', {
-  //   websiteTitle: 'Email Verification',
-  //   title: 'Email Verification',
-  //   content: 'Your email address has been successfully verified.'
-  // });
 }
 
 const discordRequest = async function discordRequest(options: any, object: any, res: Response) : Promise<any> {
@@ -76,11 +66,6 @@ const discordConfirmation = async function discordConfirmation(options: any, obj
   // ensure token exists
   if (!token) {
     return res.redirect(REDIRECTS.discordVerificationFail);
-    // return res.render('verification', {
-    //   websiteTitle: 'Discord Verification',
-    //   title: 'Discord Verification',
-    //   content: 'The Discord verification has failed because the link has either expired or does not exist.'
-    // });
   }
 
   try {
@@ -113,11 +98,6 @@ const discordConfirmation = async function discordConfirmation(options: any, obj
     let existingLinkedUser = await User.findOne({ discordId: discordUser.id });
     if (existingLinkedUser) {
       return res.redirect(REDIRECTS.discordVerificationAlreadyLinked);
-      // return res.render('verification', {
-      //   websiteTitle: 'Discord Verification',
-      //   title: 'Discord Verification',
-      //   content: 'The Discord user you are trying to link is already connected to an account.'
-      // });
     }
 
     // link discord user
@@ -125,11 +105,6 @@ const discordConfirmation = async function discordConfirmation(options: any, obj
 
     // render success
     return res.redirect(REDIRECTS.discordVerificationSuccess);
-    // return res.render('verification', {
-    //   websiteTitle: 'Discord Verification',
-    //   title: 'Discord Verification',
-    //   content: 'Your Discord account was successfully linked.'
-    // });
   } catch (err) {
     throw new InternalServerError();
   }
