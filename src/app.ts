@@ -36,7 +36,10 @@ app.disable("x-powered-by")
 
 // allow cors
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*")
+  res.header(
+    "Access-Control-Allow-Origin",
+    config.get("settings:corsAllowOrigins")
+  )
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
