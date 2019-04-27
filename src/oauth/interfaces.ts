@@ -43,6 +43,7 @@ export interface IJWTToken {
   iss: string;
   aud: string;
   sub: string;
+  username: string;
   exp: number;
   iat: number;
   token_type: string;

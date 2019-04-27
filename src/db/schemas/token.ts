@@ -64,6 +64,7 @@ TokenModel.statics.generateAccessToken = async function generateAccessToken(clie
     jto: randId,
     iss: JWT_ISSUER,
     aud: client.clientId,
+    username: user.username,
     sub: user._id,
     exp: Math.floor(expiresAt.getTime()/1000),
     iat: Math.floor(Date.now()/1000),
