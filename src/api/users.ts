@@ -12,6 +12,7 @@ import config from '../configuration';
 import i18n from '../i18n';
 
 const EMAIL_EXPIRES_IN = config.get('settings:emailExpiresIn');
+const BOT_TOKEN = config.get('discord:botToken');
 
 /** Users API Routes
 * implements the users API Routes
@@ -118,7 +119,7 @@ const resetPasswordRequest = async function resetPasswordRequest(options: any, o
   }
 }
 
-const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: string = 'false') : any {
+const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: string = 'false') : Promise<any> {
   const { username, emailVerified, discordId } = user;
 
   // create response object
@@ -126,19 +127,37 @@ const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: 
     id: user._id,
     username,
     emailVerified,
-    discord: discordId
+    discord: discordId as any
   }
 
   // if it should expand, get discord user details
-  if (shouldExpand === 'true') {
+  if (discordId && shouldExpand === 'true') {
     try {
-      
+      // fetch discord user details
+      const discordUser = await request({
+        method: 'GET',
+        uri: 'https://discordapp.com/api/v6/users/' + discordId,
+        json: true,
+        headers: {
+          authorization: `Bot ${BOT_TOKEN}` 
+        }
+      });
+  
+      // check if discord user is already linked
+      if (!discordUser || !discordUser.username) throw new InternalServerError();
+
+      // attach result to response
+      response.discord = {
+        id: discordUser.id,
+        username: `${discordUser.username}#${discordUser.discriminator}`,
+        avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
+      };
     } catch (err) {
       throw new InternalServerError();
     }
-  } else {
-    return response;
   }
+
+  return response;
 }
 
 const toPrivateJSON = function toPublicUserJSON(user: IUser) : any {
