@@ -23,7 +23,7 @@ const read = async function read(options: any, object: any) : Promise<IUser> {
   let user: IUser = await User.findById(options.id);
   // check if a response has been returned
   if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
-  return toPrivateJSON(user);
+  return await toPrivateJSON(user, options.expand);
 }
 
 const readByUsername = async function readByUsername(options: any, object: any) : Promise<IUser> {
@@ -31,7 +31,7 @@ const readByUsername = async function readByUsername(options: any, object: any) 
   let user: IUser = await User.findOne({ username: options.username });
   // check if a response has been returned
   if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
-  return toPrivateJSON(user);
+  return await toPrivateJSON(user, options.expand);
 }
 
 const add = async function add(options: any, object: any) : Promise<IUser> {
@@ -119,17 +119,7 @@ const resetPasswordRequest = async function resetPasswordRequest(options: any, o
   }
 }
 
-const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: string = 'false') : Promise<any> {
-  const { username, emailVerified, discordId } = user;
-
-  // create response object
-  const response = {
-    id: user._id,
-    username,
-    emailVerified,
-    discord: discordId as any
-  }
-
+const fetchDiscordDetails = async function fetchDiscordDetails(discordId: string, shouldExpand: string = 'false') : Promise<any> {
   // if it should expand, get discord user details
   if (discordId && shouldExpand === 'true') {
     try {
@@ -142,12 +132,12 @@ const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: 
           authorization: `Bot ${BOT_TOKEN}` 
         }
       });
-  
+
       // check if discord user is already linked
       if (!discordUser || !discordUser.username) throw new InternalServerError();
 
       // attach result to response
-      response.discord = {
+      return {
         id: discordUser.id,
         username: `${discordUser.username}#${discordUser.discriminator}`,
         avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
@@ -155,14 +145,32 @@ const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: 
     } catch (err) {
       throw new InternalServerError();
     }
+  } else {
+    return discordId;
+  }
+}
+
+const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: string) : Promise<any> {
+  const { username, emailVerified, discordId } = user;
+
+  // create response object
+  const response = {
+    id: user._id,
+    username,
+    emailVerified,
+    discord: await fetchDiscordDetails(discordId, shouldExpand)
   }
 
+  // return response
   return response;
 }
 
-const toPrivateJSON = function toPublicUserJSON(user: IUser) : any {
-  user.password = undefined;
-  return user;
+const toPrivateJSON = async function toPublicUserJSON(user: IUser, shouldExpand: string) : Promise<any> {
+  const response = user.toJSON();
+  response.password = undefined;
+  response.discordId = undefined;
+  response.discord = await fetchDiscordDetails(user.discordId, shouldExpand);
+  return response;
 }
 
 export default {
