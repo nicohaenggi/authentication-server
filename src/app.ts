@@ -75,6 +75,10 @@ export function addRoutes() : void {
   app.post('/api/admin/licenses', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );
   app.post('/api/admin/licenses/renew', middleware.auth.requireAPICredentials, api.http(api.licenses.renew) );
   app.get('/api/admin/licenses/:id', middleware.auth.requireAPICredentials, api.http(api.licenses.read) );
+  
+  // # client routes
+  // ## admin routes
+  app.get('/api/admin/clients/:id/discordIds', middleware.auth.requireAPICredentials, api.http(api.licenses.readDiscordIds) );
 
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );

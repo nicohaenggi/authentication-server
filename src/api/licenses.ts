@@ -21,7 +21,6 @@ const browse = async function browse(options: any, object: any) : Promise<ILicen
 }
 
 const browsePublic = async function browsePublic(options: any, object: any) : Promise<any[]> {
-  console.log(options.context);
   // fetch all licenses from the database that belong to the logged in user
   let licenses: ILicense[] = await License.find({ user: options.context.user });
   // check if a response has been returned
@@ -62,11 +61,24 @@ const renew = async function renew(options: any, object: any) : Promise<any> {
   let client: IClient = await Client.getClient(object.client);
   if (client == null) throw new BadRequestError({ message: i18n.__('errors.api.client.notFound') });
   
-  // check if license is existing
+  // check if license is existing and create one if not (atomic update)
   return await License.findOneAndUpdate({ client: client._id, user: object.user }, { 
     $set: { expiresAt: new Date(object.expiresAt) }, 
     $setOnInsert: { client: client._id, user: object.user } 
   }, { new: true, upsert: true, setDefaultsOnInsert: true });
+}
+
+const readDiscordIds = async function readDiscordIds(options: any, object: any) : Promise<string[]> {
+  // fetch all licenses from the database
+  let licenses: ILicense[] = await License.find({ client: options.id }).populate('user');
+
+  // check if a response has been returned
+  if (licenses == null) throw new InternalServerError();
+
+  // extract only the discord ids and make sure falsy values are excluded
+  let licensesArr = licenses.map((license) => license.user.discordId);
+  licensesArr = licensesArr.filter((license) => !!license);
+  return licensesArr;
 }
 
 const toPublicJSON = async function toPublicLicenseJSON(license: ILicense) : Promise<any> {
@@ -92,5 +104,6 @@ export default {
   read,
   add,
   renew,
+  readDiscordIds,
   toPublicJSON
 }
