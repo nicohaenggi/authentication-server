@@ -3,8 +3,8 @@
 
 // import dependencies
 import * as nconf from 'nconf';
-import * as debugModule from 'debug';
-const debug = debugModule('configuration');
+import { Logger, DebugLevel } from '../logger';
+const logger = new Logger('configuration');
 
 /**
  * Config - creates a new config instance
@@ -18,7 +18,7 @@ class Config {
     nconf.argv().env();
     // get the current environment
     let environment = nconf.get('NODE_ENV') || 'development';
-    debug(`loading '${environment}' configuration`);
+    logger.yellow(`loading '${environment}' configuration`);
     // load in the configuration for the current enviroment
     nconf.file(environment, 'config/' + environment + '.json');
     // load in default values

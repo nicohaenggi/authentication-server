@@ -13,7 +13,6 @@ import * as api from './api';
 import ExpressOAuthServer from './oauth';
 import OAuthModel from './models/oauth-model';
 const app = express();
-const debug = debugModule('express-server');
 
 // open database connection
 setup();
@@ -28,7 +27,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // use morgan to log requests to the console
-debug('setting morgan logging format to ' + config.get('express:morgan'));
 app.use(morgan(config.get('express:morgan')));
 
 // disable powered by

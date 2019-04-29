@@ -9,12 +9,14 @@ import * as https from 'https';
 import * as fs from 'fs';;
 import app, { addErrorRoutes, addRoutes } from './app';
 import config from './configuration';
+import { Logger, DebugLevel } from './logger';
+const logger = new Logger('server');
 
 // # set application port
 // if the application runs in a production environment, it will listen to the environment variable 'PORT'
 const port = config.get('express:port');
 const isProd = config.get('environment') === 'production';
-console.log('started server in mode: ' + config.get('environment'));
+logger.yellow('started server in mode: ' + config.get('environment'));
 
 // add API routes
 addRoutes();
@@ -26,25 +28,25 @@ addErrorRoutes();
 // create server with express instance and make it listen to the specified environment port
 let server;
 if (isProd) {
-  console.log('starting SSL server...');
+  logger.normal('starting SSL server...');
   server = https.createServer({
-    key: fs.readFileSync('/etc/letsencrypt/live/auth.AuthServernotify.io/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/auth.AuthServernotify.io/fullchain.pem'),
+    key: fs.readFileSync(`/etc/letsencrypt/live/${config.get('settings:domain')}/privkey.pem`),
+    cert: fs.readFileSync(`/etc/letsencrypt/live/${config.get('settings:domain')}/fullchain.pem`),
   }, app);
 } else {
-  console.log('starting HTTP server...');
+  logger.normal('starting HTTP server...');
   server = http.createServer(app);
 }
 
 // listen to specified port
 server.listen(port, () => {
-  console.log(`API server started listening on http://localhost:${port}`);
-})
+  logger.green(`API server started listening on http://localhost:${port}`);
+});
 
 // # shutdown app properly
 // make sure to prevent hard exit
 function handleExit(options: any, err: Error) {
-  console.log('shutting down the API server...');
+  logger.red('shutting down the API server...');
   // check if any errors were encountered
   if (err) console.log(err.stack);
   // if the 'exit' key was provided, shutdown the application

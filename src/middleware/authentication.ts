@@ -52,6 +52,14 @@ export async function decodeAuthToken(req: IRequest, res: Response, next: Functi
                 return next(new UnauthorizedError());
             }
 
+            // check issuer
+            if (payload.iss !== JWT_ISSUER) {
+                return next( new UnauthorizedError() );
+            }
+
+            // check audience
+            // NOTE: we do not check audience since we accept authentication tokens from any of our clients
+
             // assign web token data
             req.jwt = payload;
             req.bearer = token;
