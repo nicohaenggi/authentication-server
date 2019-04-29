@@ -73,6 +73,7 @@ export function addRoutes() : void {
   // ## admin routes
   app.get('/api/admin/licenses', middleware.auth.requireAPICredentials, api.http(api.licenses.browse) );
   app.post('/api/admin/licenses', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );
+  app.post('/api/admin/licenses/renew', middleware.auth.requireAPICredentials, api.http(api.licenses.renew) );
   app.get('/api/admin/licenses/:id', middleware.auth.requireAPICredentials, api.http(api.licenses.read) );
 
   // # resend verification

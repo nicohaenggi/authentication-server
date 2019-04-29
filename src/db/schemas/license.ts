@@ -48,7 +48,7 @@ LicenseModel.statics.getLicenseForClientAndUser = async function getLicenseForCl
   return await License.findOne({ client: client._id, user: user._id });
 }
 
-LicenseModel.statics.addNewLicense = async function addNewLicense(client: IClient, user: IUser, expiresAt: Date) : Promise<ILicense> {
+LicenseModel.statics.addNewLicense = async function addNewLicense(client: string, user: string, expiresAt: Date) : Promise<ILicense> {
   return await License.create({
     numActivated: 0,
     expiresAt,

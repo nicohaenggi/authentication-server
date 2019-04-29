@@ -42,21 +42,31 @@ const add = async function add(options: any, object: any) : Promise<any> {
     throw new BadRequestError({ message: i18n.__('errors.api.arguments.missing') });
   }
 
-  // fetch assigned user
-  let user: IUser = await User.findById(object.user);
-  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
-
   // get matching client
   let client: IClient = await Client.getClient(object.client);
   if (client == null) throw new BadRequestError({ message: i18n.__('errors.api.client.notFound') });
 
   // add new license to user
-  let license = await License.addNewLicense(client, user, new Date(object.expiresAt));
+  let license = await License.addNewLicense(client._id, object.user, new Date(object.expiresAt));
   
   // depopulate license
-  license.client = license.client._id;
-  license.user = license.user._id;
   return license;
+}
+
+const renew = async function renew(options: any, object: any) : Promise<any> {
+  if (!object.client || !object.expiresAt || !object.user) {
+    throw new BadRequestError({ message: i18n.__('errors.api.arguments.missing') });
+  }
+
+  // get matching client
+  let client: IClient = await Client.getClient(object.client);
+  if (client == null) throw new BadRequestError({ message: i18n.__('errors.api.client.notFound') });
+  
+  // check if license is existing
+  return await License.findOneAndUpdate({ client: client._id, user: object.user }, { 
+    $set: { expiresAt: new Date(object.expiresAt) }, 
+    $setOnInsert: { client: client._id, user: object.user } 
+  }, { new: true, upsert: true, setDefaultsOnInsert: true });
 }
 
 const toPublicJSON = async function toPublicLicenseJSON(license: ILicense) : Promise<any> {
@@ -81,5 +91,6 @@ export default {
   browsePublic,
   read,
   add,
+  renew,
   toPublicJSON
 }
