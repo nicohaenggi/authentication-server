@@ -8,6 +8,7 @@ import { Activation, IActivation } from '../db/schemas/activation';
 import { Client } from '../db/schemas/client';
 import { License, ILicense } from '../db/schemas/license';
 import { Token } from '../db/schemas/token';
+import licensesApi from './licenses';
 
 /** Activations API Routes
 * implements the activations API Routes
@@ -35,17 +36,7 @@ const deactivate = async function read(options: any, object: any) : Promise<IAct
 
   // return public license
   license.numActivated--;
-  return toPublicLicenseJSON(license);
-}
-
-
-const toPublicLicenseJSON = function toPublicLicenseJSON(license: ILicense) : any {
-    let { numActivated, expiresAt } = license;
-    return {
-      numActivated,
-      expiresAt,
-      id: license._id
-    };
+  return await licensesApi.toPublicJSON(license);
 }
 
 export default {

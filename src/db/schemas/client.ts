@@ -19,7 +19,9 @@ export const ClientModel: Schema = new Schema({
   refreshTokenLifetime: { type: Number, default: null },
   maxActiveSessions: { type: Number, default: null },
   fingerprintSecret: { type: String, required: true, unique: true },
-  minimumVersion: { type: Number, default: null }
+  minimumVersion: { type: Number, default: null },
+  description: { type: String, default: null },
+  getStartedUrl: { type: String, default: null }
 }, { timestamps: true });
 
 ClientModel.statics.getClient = async function getClient(clientId: string, clientSecret?: string) : Promise<IClient> {

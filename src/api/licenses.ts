@@ -12,6 +12,23 @@ import { Client, IClient } from '../db/schemas/client';
 * implements the licenses API Routes
 */
 
+const browse = async function browse(options: any, object: any) : Promise<ILicense[]> {
+  // fetch all licenses from the database
+  let licenses: ILicense[] = await License.find({});
+  // check if a response has been returned
+  if (licenses == null) throw new InternalServerError();;
+  return licenses;
+}
+
+const browsePublic = async function browsePublic(options: any, object: any) : Promise<any[]> {
+  console.log(options.context);
+  // fetch all licenses from the database that belong to the logged in user
+  let licenses: ILicense[] = await License.find({ user: options.context.user });
+  // check if a response has been returned
+  if (licenses == null) throw new InternalServerError();;
+  return await Promise.all(licenses.map(async (license) => await toPublicJSON(license)));
+}
+
 const read = async function read(options: any, object: any) : Promise<ILicense> {
   // fetch a license based on the id
   let license: ILicense = await License.findById(options.id);
@@ -21,12 +38,12 @@ const read = async function read(options: any, object: any) : Promise<ILicense> 
 }
 
 const add = async function add(options: any, object: any) : Promise<any> {
-  if (!options.id || !object.client || !object.expiresAt) {
+  if (!object.client || !object.expiresAt || !object.user) {
     throw new BadRequestError({ message: i18n.__('errors.api.arguments.missing') });
   }
 
   // fetch assigned user
-  let user: IUser = await User.findById(options.id);
+  let user: IUser = await User.findById(object.user);
   if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
 
   // get matching client
@@ -35,19 +52,34 @@ const add = async function add(options: any, object: any) : Promise<any> {
 
   // add new license to user
   let license = await License.addNewLicense(client, user, new Date(object.expiresAt));
-  return toPublicLicenseJSON(license);
+  
+  // depopulate license
+  license.client = license.client._id;
+  license.user = license.user._id;
+  return license;
 }
 
-const toPublicLicenseJSON = function toPublicLicenseJSON(license: ILicense) : any {
-  let { numActivated, expiresAt } = license;
+const toPublicJSON = async function toPublicLicenseJSON(license: ILicense) : Promise<any> {
+  // populate reference
+  license = await license.populate('client').execPopulate();
+
+  let { numActivated, expiresAt, client } = license;
     return {
+      id: license._id,
       numActivated,
-      expiresAt,
-      id: license._id
+      isActive: (new Date() > expiresAt) ? false : true,
+      client: {
+        name: client.name,
+        description: client.description,
+        getStartedUrl: client.getStartedUrl
+      }
     };
 }
 
 export default {
+  browse,
+  browsePublic,
   read,
-  add
+  add,
+  toPublicJSON
 }

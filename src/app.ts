@@ -59,10 +59,21 @@ app.param('id', middleware.validation.id);
 
 export function addRoutes() : void {
   // # user routes
+  // ## public routes
   app.post('/api/users', api.http(api.users.register) );
   app.get('/api/users/@me', middleware.auth.requireAuthenticatedUser, api.http(api.users.me) );
-  app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.users.myLicenses) );
+  app.get('/api/users/@me/licenses', middleware.auth.requireAuthenticatedUser, api.http(api.licenses.browsePublic) );
   app.get('/api/users/@me/discord/request', middleware.auth.requireAuthenticatedUser, api.http(api.verification.discordRequest) );
+  app.get('/api/users/@me/discord/confirmation', api.render(api.verification.discordConfirmation) );
+  // ## admin routes
+  app.get('/api/admin/users/:id', middleware.auth.requireAPICredentials, api.http(api.users.read) );
+  app.get('/api/admin/users/username/:username', middleware.auth.requireAPICredentials, api.http(api.users.readByUsername) );
+  
+  // # license routes
+  // ## admin routes
+  app.get('/api/admin/licenses', middleware.auth.requireAPICredentials, api.http(api.licenses.browse) );
+  app.post('/api/admin/licenses', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );
+  app.get('/api/admin/licenses/:id', middleware.auth.requireAPICredentials, api.http(api.licenses.read) );
 
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );
@@ -73,17 +84,11 @@ export function addRoutes() : void {
 
   // # oauth routes
   app.post('/api/oauth/token', oauth.token.bind(oauth) );
-  // app.post('/api/oauth/deactivate', middleware.auth.requireAuthenticatedUser, api.http(api.activations.deactivate) ); // DO CHECK
-
-  // # admin routes
-  app.get('/api/admin/users/:id', middleware.auth.requireAPICredentials, api.http(api.users.read) );
-  app.get('/api/admin/users/username/:username', middleware.auth.requireAPICredentials, api.http(api.users.readByUsername) );
-  app.post('/api/admin/users/:id/license', middleware.auth.requireAPICredentials, api.http(api.licenses.add) );
 
   // ## RENDER FILES
   // # verification routes
   app.get('/verification/email', api.render(api.verification.email) );
-  app.get('/api/users/@me/discord/confirmation', api.render(api.verification.discordConfirmation) );
+  
 }
 
 export function addErrorRoutes() : void {

@@ -2,6 +2,7 @@
 // sets up all the users API methods
 
 // import dependencies
+import * as request from 'request-promise';
 import { InternalServerError, BadRequestError } from '../errors';
 import { User, IUser } from '../db/schemas/user';
 import { OneTimeToken, IOneTimeToken } from '../db/schemas/one-time-token';
@@ -9,7 +10,6 @@ import { expiresIn } from '../utils';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../mailer/templates';
 import config from '../configuration';
 import i18n from '../i18n';
-import { License, ILicense } from '../db/schemas/license';
 
 const EMAIL_EXPIRES_IN = config.get('settings:emailExpiresIn');
 
@@ -22,7 +22,7 @@ const read = async function read(options: any, object: any) : Promise<IUser> {
   let user: IUser = await User.findById(options.id);
   // check if a response has been returned
   if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
-  return toPublicUserJSON(user);
+  return toPrivateJSON(user);
 }
 
 const readByUsername = async function readByUsername(options: any, object: any) : Promise<IUser> {
@@ -30,12 +30,7 @@ const readByUsername = async function readByUsername(options: any, object: any) 
   let user: IUser = await User.findOne({ username: options.username });
   // check if a response has been returned
   if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
-  return toPublicUserJSON(user);
-}
-
-const me = async function me(options: any, object: any) : Promise<any> {
-  let user = await read({ id: options.context.user }, {});
-  return toPublicUserJSON(user);
+  return toPrivateJSON(user);
 }
 
 const add = async function add(options: any, object: any) : Promise<IUser> {
@@ -43,8 +38,13 @@ const add = async function add(options: any, object: any) : Promise<IUser> {
   const { username, password } = object;
   const user: IUser = await User.create({ username, password });
   // check if a response has been returned
-  if(user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notCreated') });
+  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notCreated') });
   return user;
+}
+
+const me = async function me(options: any, object: any) : Promise<any> {
+  let user = await read({ id: options.context.user }, {});
+  return await toPublicJSON(user, options.expand);
 }
 
 const register = async function register(options: any, object: any) : Promise<IUser> {
@@ -57,13 +57,22 @@ const register = async function register(options: any, object: any) : Promise<IU
 
   // send verification email
   sendVerificationEmail(user.username, verifyEmailToken);
-  return toPublicUserJSON(user);
+
+  return await toPublicJSON(user, options.expand);
 }
 
-const myLicenses = async function myLicenses(options: any, object: any) : Promise<any[]> {
-  // get all licenses from database
-  const licenses = await License.find({ user: options.context.user });
-  return toPublicLicenseJSON(licenses);
+const resetPasswordConfirmation = async function resetPasswordConfirmation(options: any, object: any) : Promise<any> {
+  // find a OneTimeToken to verify
+  let token = await OneTimeToken.consumePasswordResetToken(object.token);
+
+  // make sure token is valid and not expired not expired
+  if (token == null) throw new BadRequestError({ message: i18n.__('errors.api.users.passwordResetFailed') });
+
+  // set new password for user
+  let user = await token.user.setNewPassword(object.password);
+
+  // return sucessful response
+  return await toPublicJSON(user, options.expand);
 }
 
 const resendVerification = async function resendVerification(options: any, object: any) : Promise<any> {
@@ -109,41 +118,32 @@ const resetPasswordRequest = async function resetPasswordRequest(options: any, o
   }
 }
 
-const resetPasswordConfirmation = async function resetPasswordConfirmation(options: any, object: any) : Promise<any> {
-  // find a onetimetoken to verify
-  let token = await OneTimeToken.consumePasswordResetToken(object.token);
+const toPublicJSON = async function toPublicUserJSON(user: IUser, shouldExpand: string = 'false') : any {
+  const { username, emailVerified, discordId } = user;
 
-  // make sure token is valid and not expired not expired
-  if (token == null) throw new BadRequestError({ message: i18n.__('errors.api.users.passwordResetFailed') });
-
-  // set new password for user
-  let user = await token.user.setNewPassword(object.password);
-
-  // return sucessful response
-  return toPublicUserJSON(user);
-}
-
-
-const toPublicUserJSON = function toPublicUserJSON(user: IUser) : any {
-  let { username, emailVerified, discordId } = user;
-  return {
+  // create response object
+  const response = {
+    id: user._id,
     username,
     emailVerified,
-    discordId,
-    id: user._id
+    discord: discordId
+  }
+
+  // if it should expand, get discord user details
+  if (shouldExpand === 'true') {
+    try {
+      
+    } catch (err) {
+      throw new InternalServerError();
+    }
+  } else {
+    return response;
   }
 }
 
-const toPublicLicenseJSON = function toPublicLicenseJSON(licenses: ILicense[]) : any[] {
-  let cleaned = licenses.map((license: ILicense) : any => {
-    let { numActivated, expiresAt } = license;
-    return {
-      numActivated,
-      expiresAt,
-      id: license._id
-    }
-  });
-  return cleaned;
+const toPrivateJSON = function toPublicUserJSON(user: IUser) : any {
+  user.password = undefined;
+  return user;
 }
 
 export default {
@@ -152,7 +152,6 @@ export default {
   me,
   add,
   register,
-  myLicenses,
   resendVerification,
   resetPasswordRequest,
   resetPasswordConfirmation,

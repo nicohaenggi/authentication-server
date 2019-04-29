@@ -10,4 +10,6 @@ export interface IClientDocument {
   maxActiveSessions: number;
   fingerprintSecret: string;
   minimumVersion?: number;
+  description?: string;
+  getStartedUrl?: string;
 }
