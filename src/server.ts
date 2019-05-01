@@ -26,17 +26,8 @@ addErrorRoutes();
 
 // # create server
 // create server with express instance and make it listen to the specified environment port
-let server;
-if (isProd) {
-  logger.normal('starting SSL server...');
-  server = https.createServer({
-    key: fs.readFileSync(`/etc/letsencrypt/live/${config.get('settings:domain')}/privkey.pem`),
-    cert: fs.readFileSync(`/etc/letsencrypt/live/${config.get('settings:domain')}/fullchain.pem`),
-  }, app);
-} else {
-  logger.normal('starting HTTP server...');
-  server = http.createServer(app);
-}
+logger.normal('starting HTTP server...');
+const server = http.createServer(app);
 
 // listen to specified port
 server.listen(port, () => {
