@@ -44,7 +44,10 @@ const add = async function add(options: any, object: any) : Promise<IUser> {
 }
 
 const me = async function me(options: any, object: any) : Promise<any> {
-  let user = await read({ id: options.context.user }, {});
+  // fetch a customer based on the id
+  const user: IUser = await User.findById(options.context.user);
+  // check if a response has been returned
+  if (user == null) throw new BadRequestError({ message: i18n.__('errors.api.users.notFound') });
   return await toPublicJSON(user, options.expand);
 }
 
