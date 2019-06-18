@@ -69,8 +69,12 @@ const renew = async function renew(options: any, object: any) : Promise<any> {
 }
 
 const readDiscordIds = async function readDiscordIds(options: any, object: any) : Promise<string[]> {
+  // get matching client
+  let client: IClient = await Client.getClient(options.clientid);
+  if (client == null) throw new BadRequestError({ message: i18n.__('errors.api.client.notFound') });
+
   // fetch all licenses from the database
-  let licenses: ILicense[] = await License.find({ client: options.id }).populate('user');
+  let licenses: ILicense[] = await License.find({ client: client._id }).populate('user');
 
   // check if a response has been returned
   if (licenses == null) throw new InternalServerError();

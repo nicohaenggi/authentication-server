@@ -37,6 +37,9 @@
 			},
 			"activation": {
 				"notFound": "errors.api.activation.notFound"
+			},
+			"licenses": {
+				"notFound": "errors.api.licenses.notFound"
 			}
 		}
 	}

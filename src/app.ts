@@ -78,7 +78,7 @@ export function addRoutes() : void {
   
   // # client routes
   // ## admin routes
-  app.get('/api/admin/clients/:id/discordIds', middleware.auth.requireAPICredentials, api.http(api.licenses.readDiscordIds) );
+  app.get('/api/admin/clients/id/:clientid/discordIds', middleware.auth.requireAPICredentials, api.http(api.licenses.readDiscordIds) );
 
   // # resend verification
   app.post('/api/verification/resend', api.http(api.users.resendVerification) );
