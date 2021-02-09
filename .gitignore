@@ -36,3 +36,10 @@ dist/**/*
 
 # ignore db files
 db/*
+
+# Ignore all configuration files except examples
+config/*
+!config/default.json
+!config/development-example.json
+!config/production-example.json
+!config/staging-example.json
