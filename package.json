@@ -1,7 +1,7 @@
 {
   "name": "auth-server",
   "version": "0.0.1",
-  "description": "monitor auth server",
+  "description": "an OpenID Connect Provider with support for OAuth 2.0 and user registration",
   "author": "Nico Haenggi",
   "scripts": {
     "start": "npm run serve",
