@@ -1,0 +1,48 @@
+{
+  "environment": "production",
+  "express": {
+    "port": 3001,
+    "morgan": "combined"
+  },
+  "mongo": {
+    "url": "mongodb://mongo.nicohaenggi.com/authentication-server",
+    "user": "admin",
+    "pass": "31ahd92#@(#JS[]{}dfn83"
+  },
+  "jwt": {
+    "issuer": "auth.nicohaenggi.com"
+  },
+  "api": {
+    "key": "21a9d5a0-f92f-48d0-ad05-2846ff25d88a"
+  },
+  "email": {
+    "email": "no-reply@nicohaenggi.com",
+    "username": "AKIAHSIWSJDSNIW2930298",
+    "password": "B83hs9jds*jw8sjsd(0-19128",
+    "name": "Authentication Server",
+    "host": "email-smtp.us-east-1.amazonaws.com",
+    "port": 465,
+    "templates": "./../emails",
+    "shouldSend": true
+  },
+  "discord": {
+    "clientId": "2839238782990238237298",
+    "clientSecret": "m0A-sdh72uja923msj92323nksjd-82u7",
+    "botToken": "3489usjkdj2389olksad.asldoasd.d21uhkjn,.sad2oia,do2lkmasd90hb"
+  },
+  "redirects": {
+    "discordVerificationFail": "https://nicohaenggi.com/discord/?status=fail",
+    "discordVerificationSuccess": "https://nicohaenggi.com/discord/?status=success",
+    "discordVerificationAlreadyLinked": "https://nicohaenggi.com/discord/?status=alreadyLinked",
+    "emailVerificationFail": "https://nicohaenggi.com/email/?status=fail",
+    "emailVerificationSuccess": "https://nicohaenggi.com/email/?status=success",
+    "passwordReset": "https://nicohaenggi.com/forgot/"
+  },
+  "settings": {
+    "emailExpiresIn": 86400,
+    "discordExpiresIn": 180,
+    "cleanupDelay": 3600,
+    "baseUrl": "https://auth.nicohaenggi.com",
+    "corsAllowOrigins": "*"
+  }
+}

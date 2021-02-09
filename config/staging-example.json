@@ -1,0 +1,48 @@
+{
+  "environment": "staging",
+  "express": {
+    "port": 3001,
+    "morgan": "combined"
+  },
+  "mongo": {
+    "url": "mongodb://localhost/authentication-server",
+    "user": "admin",
+    "pass": "Sj398sj2*^sk1@#"
+  },
+  "jwt": {
+    "issuer": "staging.auth.nicohaenggi.com"
+  },
+  "api": {
+    "key": "9322c946-2d2d-4574-8dc5-acd297c1c41f"
+  },
+  "email": {
+    "email": "no-reply@staging.nicohaenggi.com",
+    "username": "AKIAHSIWSJDSNIW2930298",
+    "password": "B83hs9jds*jw8sjsd(0-19128",
+    "name": "Authentication Server (Staging)",
+    "host": "email-smtp.us-east-1.amazonaws.com",
+    "port": 465,
+    "templates": "./../emails",
+    "shouldSend": true
+  },
+  "discord": {
+    "clientId": "2839238782990238237298",
+    "clientSecret": "m0A-sdh72uja923msj92323nksjd-82u7",
+    "botToken": "3489usjkdj2389olksad.asldoasd.d21uhkjn,.sad2oia,do2lkmasd90hb"
+  },
+  "redirects": {
+    "discordVerificationFail": "https://staging.nicohaenggi.com/discord/?status=fail",
+    "discordVerificationSuccess": "https://staging.nicohaenggi.com/discord/?status=success",
+    "discordVerificationAlreadyLinked": "https://staging.nicohaenggi.com/discord/?status=alreadyLinked",
+    "emailVerificationFail": "https://staging.nicohaenggi.com/email/?status=fail",
+    "emailVerificationSuccess": "https://staging.nicohaenggi.com/email/?status=success",
+    "passwordReset": "https://staging.nicohaenggi.com/forgot/"
+  },
+  "settings": {
+    "emailExpiresIn": 86400,
+    "discordExpiresIn": 180,
+    "cleanupDelay": 3600,
+    "baseUrl": "https://staging.auth.nicohaenggi.com",
+    "corsAllowOrigins": "*"
+  }
+}

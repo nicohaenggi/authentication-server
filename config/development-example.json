@@ -1,0 +1,48 @@
+{
+  "environment": "development",
+  "express": {
+    "port": 3001,
+    "morgan": "dev"
+  },
+  "mongo": {
+    "url": "mongodb://localhost/authentication-server",
+    "user": null,
+    "pass": null
+  },
+  "jwt": {
+    "issuer": "dev.auth.nicohaenggi.com"
+  },
+  "api": {
+    "key": "81aa2a4d-d42c-4b1b-8c49-351622ed416b"
+  },
+  "email": {
+    "email": "no-reply@dev.nicohaenggi.com",
+    "username": "AKIAHSIWSJDSNIW2930298",
+    "password": "B83hs9jds*jw8sjsd(0-19128",
+    "name": "Authentication Server (Development)",
+    "host": "email-smtp.us-east-1.amazonaws.com",
+    "port": 465,
+    "templates": "./../emails",
+    "shouldSend": false
+  },
+  "discord": {
+    "clientId": "2839238782990238237298",
+    "clientSecret": "m0A-sdh72uja923msj92323nksjd-82u7",
+    "botToken": "3489usjkdj2389olksad.asldoasd.d21uhkjn,.sad2oia,do2lkmasd90hb"
+  },
+  "redirects": {
+    "discordVerificationFail": "http://localhost:3000/discord?status=fail",
+    "discordVerificationSuccess": "http://localhost:3000/discord?status=success",
+    "discordVerificationAlreadyLinked": "http://localhost:3000/discord?status=alreadyLinked",
+    "emailVerificationFail": "http://localhost:3000/email?status=fail",
+    "emailVerificationSuccess": "http://localhost:3000/email?status=success",
+    "passwordReset": "http://localhost:3000/forgot/"
+  },
+  "settings": {
+    "emailExpiresIn": 86400,
+    "discordExpiresIn": 180,
+    "cleanupDelay": 10,
+    "baseUrl": "http://localhost:3001",
+    "corsAllowOrigins": "*"
+  }
+}
