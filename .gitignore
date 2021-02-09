@@ -43,3 +43,9 @@ config/*
 !config/development-example.json
 !config/production-example.json
 !config/staging-example.json
+
+# Ignore all keys
+keys/jwt/*
+!keys/jwt/cert-example.key
+!keys/jwt/cert-example.pem
+!keys/jwt/cert-example.pub
