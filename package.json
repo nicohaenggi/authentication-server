@@ -68,6 +68,6 @@
     "request-promise": "^4.2.2",
     "statuses": "^1.5.0",
     "type-is": "^1.6.16",
-    "validator": "^10.3.0"
+    "validator": "^13.7.0"
   }
 }
