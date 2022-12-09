@@ -55,7 +55,7 @@
     "debug": "^3.1.0",
     "ejs": "^2.6.1",
     "email-templates": "^4.0.1",
-    "express": "^4.16.2",
+    "express": "^4.17.3",
     "i18n": "^0.8.3",
     "jsonwebtoken": "^8.2.2",
     "lodash": "^4.17.5",
